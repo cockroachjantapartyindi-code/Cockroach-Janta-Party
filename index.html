@@ -91,15 +91,16 @@
     #hero{
       min-height:100vh;
       display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-      text-align:center;padding:58px 0 0;
+      text-align:center;padding:0;
       position:relative;overflow:hidden;
     }
 
-    /* BANNER — full-width edge-to-edge */
+    /* BANNER — full-width edge-to-edge, with navbar clearance + breathing room */
     .hero-banner{
       width:100%;max-width:100%;display:block;
       object-fit:cover;object-position:center top;
-      max-height:80vh;
+      margin-top:58px; /* navbar height */
+      padding-top:12px; /* extra breathing space between nav and banner */
       animation:fadeIn .8s ease both;
     }
     .flag-bar{width:100%;height:5px;background:linear-gradient(90deg,var(--o) 33.3%,var(--w) 33.3% 66.6%,var(--g) 66.6%);flex-shrink:0;}
@@ -167,6 +168,92 @@
     .c-bar:nth-child(3){background:var(--gl);animation-delay:.4s}
     .c-bar:nth-child(4){background:#60A5FF;animation-delay:.6s}
     @keyframes barPulse{0%,100%{opacity:.3;transform:scaleX(.7)}50%{opacity:1;transform:scaleX(1)}}
+
+    /* ── MASCOT / CHARACTER SECTION ── */
+    #mascot{background:linear-gradient(160deg,rgba(0,71,171,.1) 0%,rgba(6,14,43,0) 50%,rgba(19,136,8,.08) 100%);}
+    .mascot-inner{display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:center;max-width:980px;margin:0 auto;padding:80px 20px;}
+    .mascot-figure{position:relative;display:flex;flex-direction:column;align-items:center;}
+    .mascot-svg-wrap{
+      position:relative;
+      width:280px;height:280px;
+    }
+    /* animated glow ring */
+    .mascot-ring{
+      position:absolute;inset:-14px;border-radius:50%;
+      border:2px solid transparent;
+      background:conic-gradient(var(--o),var(--w),var(--g),var(--b),var(--o)) border-box;
+      -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+      -webkit-mask-composite:destination-out;mask-composite:exclude;
+      animation:spinRing 6s linear infinite;
+    }
+    @keyframes spinRing{to{transform:rotate(360deg);}}
+    .mascot-avatar{
+      width:280px;height:280px;border-radius:50%;overflow:hidden;
+      background:radial-gradient(circle at 40% 35%,#1a4a1e,#0d2b0f);
+      border:3px solid rgba(255,107,0,.4);
+      box-shadow:0 0 40px rgba(255,107,0,.2),0 20px 60px rgba(0,0,0,.5);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    /* The cockroach character SVG inside */
+    .mascot-avatar svg{width:220px;height:220px;}
+    .mascot-name{
+      font-family:'Playfair Display',serif;font-weight:900;
+      font-size:1.1rem;color:var(--ol);margin-top:16px;
+      letter-spacing:.04em;
+    }
+    .mascot-title{
+      font-family:'Rajdhani',sans-serif;font-size:.7rem;
+      letter-spacing:.2em;text-transform:uppercase;
+      color:rgba(255,255,255,.4);margin-top:4px;
+    }
+    .mascot-est{
+      display:inline-block;
+      background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);
+      font-family:'Rajdhani',sans-serif;font-size:.68rem;letter-spacing:.18em;
+      text-transform:uppercase;color:var(--ol);padding:4px 14px;border-radius:12px;margin-top:10px;
+    }
+    /* speech bubble */
+    .mascot-speech{
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+      border-radius:12px 12px 12px 0;padding:28px 32px;position:relative;
+    }
+    .mascot-speech::before{
+      content:'';position:absolute;bottom:-1px;left:-18px;
+      width:0;height:0;
+      border-top:18px solid transparent;
+      border-right:20px solid rgba(255,255,255,.1);
+      border-bottom:0;
+    }
+    .mascot-speech::after{
+      content:'';position:absolute;bottom:0;left:-16px;
+      width:0;height:0;
+      border-top:16px solid transparent;
+      border-right:18px solid rgba(255,255,255,.04);
+      border-bottom:0;
+    }
+    .speech-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--o);margin-bottom:10px;display:block;}
+    .speech-quote{
+      font-family:'Playfair Display',serif;font-style:italic;
+      font-size:clamp(1.1rem,2.5vw,1.55rem);line-height:1.45;color:#fff;
+      margin-bottom:18px;
+    }
+    .speech-body{font-size:.88rem;line-height:1.78;color:rgba(255,255,255,.6);}
+    .speech-body strong{color:#fff;}
+    .speech-stats{display:flex;gap:24px;margin-top:22px;flex-wrap:wrap;}
+    .sp-stat{display:flex;flex-direction:column;}
+    .sp-stat-n{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.5rem;color:var(--ol);line-height:1;}
+    .sp-stat-l{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:3px;}
+
+    @media(max-width:768px){
+      .mascot-inner{grid-template-columns:1fr;gap:32px;padding:60px 16px;}
+      .mascot-figure{flex-direction:row;gap:20px;align-items:flex-start;justify-content:center;}
+      .mascot-svg-wrap,.mascot-avatar{width:120px;height:120px;}
+      .mascot-avatar svg{width:100px;height:100px;}
+      .mascot-ring{inset:-8px;}
+      .mascot-speech{border-radius:12px;}
+      .mascot-speech::before,.mascot-speech::after{display:none;}
+    }
 
     /* ── VISION ── */
     .vision-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px;}
@@ -393,6 +480,115 @@
       <div class="c-bar"></div><div class="c-bar"></div>
       <div class="c-bar"></div><div class="c-bar"></div>
     </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- MASCOT CHARACTER — Neta Ji Kakradev -->
+<section id="mascot">
+  <div class="mascot-inner reveal">
+
+    <!-- Character figure -->
+    <div class="mascot-figure">
+      <div class="mascot-svg-wrap">
+        <div class="mascot-ring"></div>
+        <div class="mascot-avatar">
+          <!-- Hand-drawn cockroach politician SVG character -->
+          <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- background glow -->
+            <radialGradient id="bodyGlow" cx="50%" cy="60%" r="50%">
+              <stop offset="0%" stop-color="#2a6b2e" stop-opacity=".6"/>
+              <stop offset="100%" stop-color="#0d2b0f" stop-opacity="0"/>
+            </radialGradient>
+            <circle cx="110" cy="130" r="80" fill="url(#bodyGlow)"/>
+
+            <!-- SUIT JACKET -->
+            <path d="M58 165 Q55 200 50 220 L170 220 Q165 200 162 165 Q145 155 132 148 L128 158 L110 162 L92 158 L88 148 Q75 155 58 165Z" fill="#1a3a1c"/>
+            <!-- jacket lapels -->
+            <path d="M92 148 L88 148 L72 155 L80 168 L92 158Z" fill="#142e16"/>
+            <path d="M128 148 L132 148 L148 155 L140 168 L128 158Z" fill="#142e16"/>
+            <!-- shirt white -->
+            <path d="M96 148 L92 158 L100 172 L110 170 L120 172 L128 158 L124 148 L110 152Z" fill="#e8e8e8"/>
+            <!-- tie — saffron -->
+            <path d="M106 152 L110 156 L114 152 L112 148 L108 148Z" fill="var(--o)"/>
+            <path d="M107 156 L110 178 L113 156 L110 162Z" fill="var(--o)"/>
+            <!-- CJP badge on lapel -->
+            <circle cx="88" cy="160" r="6" fill="#C8A83A"/>
+            <text x="88" y="163" text-anchor="middle" font-size="4" font-family="Arial" font-weight="bold" fill="#0d2b0f">CJP</text>
+
+            <!-- NECK -->
+            <rect x="103" y="128" width="14" height="22" rx="4" fill="#6B3A1F"/>
+
+            <!-- HEAD — cockroach -->
+            <ellipse cx="110" cy="105" rx="38" ry="35" fill="#7a3f1e"/>
+            <!-- head sheen -->
+            <ellipse cx="102" cy="92" rx="12" ry="8" fill="rgba(255,255,255,.08)" transform="rotate(-15,102,92)"/>
+
+            <!-- EYES — big compound -->
+            <ellipse cx="93" cy="98" rx="13" ry="14" fill="#111"/>
+            <ellipse cx="127" cy="98" rx="13" ry="14" fill="#111"/>
+            <!-- eye shine -->
+            <circle cx="97" cy="93" r="4" fill="#3a3aff" opacity=".6"/>
+            <circle cx="131" cy="93" r="4" fill="#3a3aff" opacity=".6"/>
+            <circle cx="94" cy="91" r="2" fill="#fff" opacity=".8"/>
+            <circle cx="128" cy="91" r="2" fill="#fff" opacity=".8"/>
+
+            <!-- ANTENNAE -->
+            <path d="M100 72 Q85 55 68 38" stroke="#6B3A1F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M120 72 Q135 55 152 38" stroke="#6B3A1F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- antennae tips -->
+            <circle cx="68" cy="38" r="3.5" fill="#8B4A25"/>
+            <circle cx="152" cy="38" r="3.5" fill="#8B4A25"/>
+
+            <!-- MOUTH / expression — slight smirk -->
+            <path d="M101 118 Q110 125 119 118" stroke="#4a2008" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+            <!-- pointing finger hand (right side) -->
+            <path d="M162 148 Q170 140 166 130 Q175 125 172 115 Q165 115 162 122 Q158 115 152 118 Q150 126 155 130 Q150 138 155 148Z" fill="#7a3f1e"/>
+            <!-- finger point -->
+            <path d="M166 130 Q178 120 186 108 Q180 104 172 115Z" fill="#7a3f1e"/>
+
+            <!-- left hand holding mic (simplified) -->
+            <rect x="45" y="138" width="8" height="28" rx="4" fill="#555" opacity=".8"/>
+            <ellipse cx="49" cy="135" rx="10" ry="12" fill="#444"/>
+            <!-- mic grille lines -->
+            <line x1="42" y1="133" x2="56" y2="133" stroke="#666" stroke-width="1"/>
+            <line x1="42" y1="136" x2="56" y2="136" stroke="#666" stroke-width="1"/>
+            <line x1="42" y1="139" x2="56" y2="139" stroke="#666" stroke-width="1"/>
+            <!-- hand holding mic -->
+            <path d="M35 148 Q32 145 36 138 Q42 135 50 138 Q54 144 50 150Z" fill="#7a3f1e"/>
+
+            <!-- Indian flag pin sparkle on jacket -->
+            <circle cx="135" cy="158" r="3" fill="var(--o)" opacity=".7"/>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="mascot-name">Neta Ji Kakradev</div>
+        <div class="mascot-title">Founder &amp; Chief Cockroach Officer</div>
+        <div class="mascot-est">🪳 Est. 2026</div>
+      </div>
+    </div>
+
+    <!-- Speech bubble -->
+    <div class="mascot-speech">
+      <span class="speech-tag">💬 Neta Ji Kakradev Speaks —</span>
+      <p class="speech-quote">"They called us lazy. We called their bluff. Now we're running for office."</p>
+      <p class="speech-body">
+        I founded the Cockroach Janta Party in <strong>2026</strong> because I was tired of watching the same suited people make the same broken promises while real Indians — students, farmers, workers — quietly suffered.<br><br>
+        Our <strong>Mission</strong> is simple: drag every real problem — unemployment, paper leaks, corruption, inflation — into the spotlight and refuse to let politicians look away.<br><br>
+        Our <strong>Vision</strong> is a corruption-free India where every citizen is treated with dignity. No more comparing us to animals. No more silencing dissent. No more manufactured distractions.<br><br>
+        <strong>We survived pesticide. We'll survive politics.</strong>
+      </p>
+      <div class="speech-stats">
+        <div class="sp-stat"><span class="sp-stat-n">2026</span><span class="sp-stat-l">Established</span></div>
+        <div class="sp-stat"><span class="sp-stat-n">10</span><span class="sp-stat-l">Real Issues</span></div>
+        <div class="sp-stat"><span class="sp-stat-n">₹0</span><span class="sp-stat-l">Corp. Money</span></div>
+        <div class="sp-stat"><span class="sp-stat-n">∞</span><span class="sp-stat-l">Determination</span></div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -703,7 +899,7 @@
           pledge:'✓ Taken — Loyal to a corruption-free India. Jai Hind.',
           _subject:'🪳 New CJP Member: '+name,
           _replyto:email||'cockroachjantapartyindi@gmail.com',
-          _autoresponse:`Jai Hind, ${name}! 🇮🇳\n\nWelcome to the Cockroach Janta Party.\n\nYou have officially taken the oath:\n"I stand for a corruption-free India. No one calls us cowards. No one compares us to dogs. Not anymore."\n\nYou are now part of the swarm. We are unstoppable.\n\nStronger Together 🪳\n— Cockroach Janta Party\nFounded by Indian Youth\n\nYouTube: https://www.youtube.com/@CockroachJantaPartyindi\nInstagram: https://www.instagram.com/cockroachjantapartyindi/\nTwitter: https://x.com/Cockroach_jpart`
+          _autoresponse:`🪳 WELCOME TO THE SWARM, ${name}!\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCOCKROACH JANTA PARTY\nOFFICIAL MEMBERSHIP CERTIFICATE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCongratulations, Comrade ${name}!\n\nYou have been officially inducted into the most unstoppable political force India has ever seen.\n\nThey tried to squash us. They sprayed pesticide. They called us lazy, unemployed, and irrelevant.\n\nWE. ARE. STILL. HERE.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nYOUR OATH (SIGNED IN INK, SEALED IN SPIRIT):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"I stand for a corruption-free India.\nNo more paper leaks. No more mehngai.\nNo more treating Indian citizens like second-class humans.\nNo one calls us cowards. Not anymore."\n\nMember since: 2026\nParty: Cockroach Janta Party (CJP)\nStatus: ACTIVE SWARM MEMBER 🪳\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nWHAT HAPPENS NEXT?\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n1. Follow us everywhere — we move fast.\n2. Share this movement with 5 people.\n3. Show up. Speak up. Spread.\n\n📺 YouTube  → https://www.youtube.com/@CockroachJantaPartyindi\n📸 Instagram → https://www.instagram.com/cockroachjantapartyindi/\n🐦 Twitter   → https://x.com/Cockroach_jpart\n📧 Email     → cockroachjantapartyindi@gmail.com\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRemember: cockroaches survived the dinosaurs, nuclear blast simulations, and 5 minutes of Indian news TV.\n\nWE WILL SURVIVE THIS TOO.\n\nStronger Together. Jai Hind. 🇮🇳🪳\n\n— Neta Ji Kakradev\n  Founder & Chief Cockroach Officer\n  Cockroach Janta Party | Est. 2026\n  Headquarters: Wherever the WiFi Works`
         })
       });
       if(res.ok){
