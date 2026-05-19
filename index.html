@@ -11,577 +11,842 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Rajdhani:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --green-dark:  #0d2b0f;
-      --green-mid:   #1a4a1e;
-      --green-main:  #2a6b2e;
-      --green-light: #3d8c42;
-      --cream:       #f0e8d0;
-      --cream-dark:  #d9cba8;
-      --orange:      #c9501a;
-      --orange-light:#e8621f;
-      --gold:        #c8a83a;
-      --brown:       #5c3317;
-      --text-dark:   #1a1008;
-      --text-body:   #2e1f0a;
+      --orange:      #FF6B00;
+      --orange-lite: #FF8C38;
+      --orange-glow: rgba(255,107,0,0.35);
+      --white:       #FFFFFF;
+      --off-white:   #F0F4FF;
+      --green:       #138808;
+      --green-lite:  #1DB80B;
+      --green-dark:  #0A5405;
+      --green-glow:  rgba(19,136,8,0.3);
+      --blue:        #0047AB;
+      --blue-lite:   #1565E0;
+      --blue-mid:    #003080;
+      --blue-glow:   rgba(0,71,171,0.35);
+      --navy:        #060E2B;
+      --text:        #FFFFFF;
+      --text-muted:  rgba(255,255,255,0.65);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--green-dark);
-      color: var(--cream);
+      background: var(--navy);
+      color: var(--text);
       font-family: 'Libre Baskerville', Georgia, serif;
       overflow-x: hidden;
     }
 
-    /* ─── NOISE TEXTURE OVERLAY ─── */
+    /* ══ ANIMATED BACKGROUND ══ */
     body::before {
       content: '';
-      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-      opacity: .03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 0% 0%,   rgba(255,107,0,.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 0%,  rgba(0,71,171,.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%,rgba(19,136,8,.1)  0%, transparent 50%),
+        radial-gradient(ellipse at 0% 100%,  rgba(255,107,0,.08) 0%, transparent 50%),
+        var(--navy);
+      animation: bgShift 12s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      50%  { filter: hue-rotate(8deg) brightness(1.05); }
+      100% { filter: hue-rotate(-5deg) brightness(.97); }
     }
 
-    /* ─── UTILITY ─── */
-    .section { padding: 80px 20px; max-width: 960px; margin: 0 auto; }
+    /* noise grain */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* all sections sit above bg */
+    header, section, footer, .marquee-wrap { position: relative; z-index: 1; }
+
+    /* ══ UTILITY ══ */
+    .section { padding: 90px 20px; max-width: 980px; margin: 0 auto; }
+    .eyebrow {
+      display: block;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: .75rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 12px;
+    }
+    .sec-title {
+      font-family: 'Playfair Display', serif; font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.1; color: var(--white);
+    }
+    .sec-title em { color: var(--orange); font-style: italic; }
+    .sec-title .blu { color: #60A5FF; font-style: italic; }
+    .sec-title .grn { color: #4ADE80; font-style: italic; }
+
     .divider {
-      width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 0 auto;
+      height: 2px; border: none;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--white), var(--green), var(--blue), transparent);
+      animation: divFlow 4s linear infinite;
+      background-size: 200% 100%;
     }
-    .tag {
-      display: inline-block;
-      font-family: 'Oswald', sans-serif;
-      font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
-      padding: 4px 14px; border: 1px solid var(--gold);
-      color: var(--gold); margin-bottom: 18px;
+    @keyframes divFlow {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
     }
 
-    /* ─── TOPBAR ─── */
+    /* ══ TOPBAR ══ */
     #topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(13,43,15,.96);
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid rgba(200,168,58,.25);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(6,14,43,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 20px;
+      padding: 10px 24px;
       transition: box-shadow .3s;
     }
     #topbar .brand {
       display: flex; align-items: center; gap: 10px;
-      font-family: 'Oswald', sans-serif; font-weight: 700;
-      font-size: 1rem; letter-spacing: .06em; color: var(--cream);
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; letter-spacing: .08em; color: var(--white);
       text-decoration: none;
     }
-    #topbar .brand img { height: 34px; width: auto; border-radius: 50%; }
-    #topbar nav { display: flex; gap: 18px; align-items: center; }
+    #topbar .brand img { height: 36px; border-radius: 50%; border: 2px solid var(--orange); }
+    #topbar nav { display: flex; gap: 20px; align-items: center; }
     #topbar nav a {
-      font-family: 'Oswald', sans-serif; font-size: .82rem;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--cream-dark); text-decoration: none;
-      transition: color .2s;
+      font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: .85rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; transition: color .2s;
     }
-    #topbar nav a:hover { color: var(--gold); }
-    #topbar .nav-cta {
-      background: var(--orange); color: #fff !important;
-      padding: 6px 16px; font-size: .8rem;
+    #topbar nav a:hover { color: var(--orange-lite); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--orange), var(--orange-lite));
+      color: #fff !important; padding: 7px 18px !important;
+      border-radius: 2px; font-size: .82rem !important;
+      box-shadow: 0 3px 14px var(--orange-glow);
+      transition: box-shadow .2s, transform .15s !important;
     }
-    #topbar .nav-cta:hover { background: var(--orange-light); color: #fff !important; }
+    .nav-cta:hover { box-shadow: 0 6px 22px var(--orange-glow) !important; transform: translateY(-1px); }
 
-    /* ─── HERO ─── */
+    /* ══ HERO ══ */
     #hero {
       min-height: 100vh;
-      background: radial-gradient(ellipse at 50% 20%, var(--green-mid) 0%, var(--green-dark) 70%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 120px 20px 60px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 110px 20px 70px;
       position: relative; overflow: hidden;
     }
-    #hero::after {
+
+    /* animated tricolour ring */
+    #hero::before {
       content: '';
-      position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(ellipse at center bottom, rgba(201,80,26,.08), transparent 70%);
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 900px; border-radius: 50%;
+      background: conic-gradient(
+        var(--orange) 0deg 120deg,
+        var(--white)  120deg 240deg,
+        var(--green)  240deg 360deg
+      );
+      opacity: .04;
+      animation: spinRing 30s linear infinite;
     }
-    .hero-img-wrap {
-      position: relative; display: inline-block; margin-bottom: 36px;
-    }
-    .hero-img-wrap img {
-      width: min(88vw, 680px); border-radius: 4px;
-      box-shadow: 0 20px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(200,168,58,.3);
+    @keyframes spinRing { to { transform: translateX(-50%) rotate(360deg); } }
+
+    .hero-img {
+      width: min(90vw, 700px); border-radius: 6px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.1),
+                  0 24px 80px rgba(0,0,0,.7),
+                  0 0 60px var(--orange-glow);
       animation: fadeUp .8s ease both;
+      margin-bottom: 36px; position: relative;
     }
-    .hero-badge {
-      position: absolute; bottom: -16px; right: -10px;
-      background: var(--orange); color: #fff;
-      font-family: 'Oswald', sans-serif; font-size: .78rem; letter-spacing: .1em;
-      padding: 6px 14px; text-transform: uppercase;
-      box-shadow: 0 4px 18px rgba(201,80,26,.5);
-      animation: fadeUp .8s .3s ease both;
+    .flag-bar {
+      width: min(90vw, 700px); height: 5px;
+      background: linear-gradient(90deg, var(--orange) 33.3%, var(--white) 33.3% 66.6%, var(--green) 66.6%);
+      margin: 0 auto 36px; border-radius: 0 0 3px 3px;
+      box-shadow: 0 3px 16px rgba(255,107,0,.3);
+      animation: fadeUp .8s .1s ease both;
     }
+
     #hero h1 {
       font-family: 'Playfair Display', serif; font-weight: 900;
-      font-size: clamp(2.4rem, 7vw, 5rem); line-height: 1.1;
-      color: var(--cream);
-      text-shadow: 0 2px 30px rgba(0,0,0,.6);
+      font-size: clamp(2.6rem, 7vw, 5.2rem); line-height: 1.08;
       animation: fadeUp .8s .15s ease both;
     }
-    #hero h1 em { color: var(--gold); font-style: italic; }
-    #hero p.subtitle {
+    #hero h1 .w1 {
+      background: linear-gradient(135deg, var(--orange-lite), #FFB347);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    #hero h1 .w2 { color: var(--white); }
+    #hero h1 .w3 {
+      background: linear-gradient(135deg, #60A5FF, var(--blue-lite));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    #hero p.sub {
       max-width: 560px; margin: 18px auto 0;
-      font-size: clamp(1rem, 2.5vw, 1.2rem); color: var(--cream-dark);
-      line-height: 1.7; animation: fadeUp .8s .25s ease both;
+      font-size: clamp(.95rem, 2.5vw, 1.15rem);
+      color: rgba(255,255,255,.7); line-height: 1.75;
+      animation: fadeUp .8s .25s ease both;
     }
+
+    /* ── COUNTER BADGE in hero ── */
+    .hero-counter {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      padding: 12px 28px; margin: 28px auto 0;
+      animation: fadeUp .8s .32s ease both;
+    }
+    .hero-counter .hc-num {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 2.2rem; line-height: 1;
+      background: linear-gradient(135deg, var(--orange-lite), #FFD580);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-counter .hc-label {
+      font-family: 'Rajdhani', sans-serif; font-size: .78rem;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.6); line-height: 1.3; text-align: left;
+    }
+    .hc-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green-lite);
+      box-shadow: 0 0 10px var(--green-lite);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
     .hero-stats {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px;
-      margin: 36px auto; animation: fadeUp .8s .35s ease both;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px;
+      margin: 28px auto 0; animation: fadeUp .8s .38s ease both;
     }
-    .hero-stats .stat {
-      display: flex; flex-direction: column; align-items: center;
+    .hero-stats .st { display: flex; flex-direction: column; align-items: center; }
+    .hero-stats .st-n {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.9rem; color: var(--orange-lite); line-height: 1;
     }
-    .hero-stats .stat-num {
-      font-family: 'Oswald', sans-serif; font-size: 1.9rem; font-weight: 700;
-      color: var(--gold); line-height: 1;
+    .hero-stats .st-l {
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(255,255,255,.5); margin-top: 3px;
     }
-    .hero-stats .stat-label {
-      font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--cream-dark); margin-top: 4px;
-    }
-    .stat-sep { color: rgba(200,168,58,.3); font-size: 1.6rem; align-self: center; }
+    .st-sep { color: rgba(255,255,255,.15); font-size: 1.5rem; align-self: center; }
+
     .hero-ctas {
       display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
-      margin-top: 10px; animation: fadeUp .8s .45s ease both;
+      margin-top: 32px; animation: fadeUp .8s .45s ease both;
     }
-    .btn-primary {
-      background: var(--orange); color: #fff;
-      font-family: 'Oswald', sans-serif; font-weight: 600;
-      font-size: 1rem; letter-spacing: .1em; text-transform: uppercase;
-      padding: 14px 32px; border: none; cursor: pointer; text-decoration: none;
-      display: inline-block; transition: background .2s, transform .15s, box-shadow .2s;
-      box-shadow: 0 6px 28px rgba(201,80,26,.4);
-    }
-    .btn-primary:hover { background: var(--orange-light); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(201,80,26,.55); }
-    .btn-secondary {
-      background: transparent; color: var(--cream);
-      font-family: 'Oswald', sans-serif; font-weight: 600;
-      font-size: 1rem; letter-spacing: .1em; text-transform: uppercase;
-      padding: 13px 30px; border: 2px solid var(--gold); cursor: pointer;
-      text-decoration: none; display: inline-block; transition: all .2s;
-    }
-    .btn-secondary:hover { background: rgba(200,168,58,.12); color: var(--gold); }
 
-    /* ─── MARQUEE ─── */
+    /* ── BUTTONS ── */
+    .btn-o {
+      background: linear-gradient(135deg, var(--orange), var(--orange-lite));
+      color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 14px 34px; border: none; cursor: pointer; text-decoration: none;
+      display: inline-block; border-radius: 2px;
+      box-shadow: 0 6px 28px var(--orange-glow);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn-o:hover { transform: translateY(-2px); box-shadow: 0 10px 38px var(--orange-glow); }
+
+    .btn-b {
+      background: linear-gradient(135deg, var(--blue), var(--blue-lite));
+      color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 14px 34px; border: none; cursor: pointer; text-decoration: none;
+      display: inline-block; border-radius: 2px;
+      box-shadow: 0 6px 28px var(--blue-glow);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn-b:hover { transform: translateY(-2px); box-shadow: 0 10px 38px var(--blue-glow); }
+
+    .btn-ghost {
+      background: transparent; color: var(--white);
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 13px 32px; border: 2px solid rgba(255,255,255,.3); cursor: pointer;
+      text-decoration: none; display: inline-block; border-radius: 2px;
+      transition: all .2s;
+    }
+    .btn-ghost:hover { border-color: var(--white); background: rgba(255,255,255,.07); }
+
+    /* ══ MARQUEE ══ */
     .marquee-wrap {
-      background: var(--orange); overflow: hidden; padding: 10px 0;
-      border-top: 2px solid #fff3; border-bottom: 2px solid #fff3;
+      overflow: hidden; padding: 11px 0;
+      background: linear-gradient(90deg, var(--orange), #FF8C00, var(--orange));
+      background-size: 200% 100%;
+      animation: mq-bg 5s ease-in-out infinite alternate;
     }
-    .marquee-inner {
-      display: inline-block; white-space: nowrap;
-      animation: marquee 28s linear infinite;
-    }
+    @keyframes mq-bg { 0%{background-position:0%} 100%{background-position:100%} }
+    .marquee-inner { display: inline-block; white-space: nowrap; animation: marquee 26s linear infinite; }
     .marquee-inner span {
-      font-family: 'Oswald', sans-serif; font-size: .9rem; font-weight: 600;
-      letter-spacing: .18em; text-transform: uppercase; color: #fff;
-      padding: 0 36px;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: .9rem; letter-spacing: .22em; text-transform: uppercase;
+      color: #fff; padding: 0 32px;
     }
-    .marquee-inner span::before { content: '✦'; margin-right: 36px; opacity: .6; }
+    .marquee-inner span::before { content: '★'; margin-right: 32px; opacity: .6; }
 
-    /* ─── VISION ─── */
-    #vision { background: var(--green-dark); }
-    .vision-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px;
+    /* ══ MEMBER COUNTER SECTION ══ */
+    #counter-section {
+      background: linear-gradient(135deg,
+        rgba(0,71,171,.15) 0%,
+        rgba(19,136,8,.1) 50%,
+        rgba(255,107,0,.12) 100%);
+      border-top: 1px solid rgba(255,255,255,.07);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding: 60px 20px; text-align: center;
     }
-    .vision-card {
-      background: rgba(255,255,255,.03); border: 1px solid rgba(200,168,58,.2);
-      padding: 32px 28px; position: relative; overflow: hidden;
+    .counter-inner { max-width: 800px; margin: 0 auto; }
+    .counter-title {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: .75rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--green-lite); margin-bottom: 16px;
     }
-    .vision-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--green-light), var(--gold));
+    .big-counter {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: clamp(4rem, 14vw, 9rem); line-height: 1;
+      background: linear-gradient(135deg, var(--orange-lite) 0%, #FFD580 40%, var(--white) 60%, #60A5FF 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      background-size: 200% 100%;
+      animation: gradShift 4s ease-in-out infinite alternate;
     }
-    .vision-card h3 {
-      font-family: 'Playfair Display', serif; font-size: 1.4rem;
-      color: var(--gold); margin-bottom: 14px;
+    @keyframes gradShift { 0%{background-position:0%} 100%{background-position:100%} }
+    .counter-sub {
+      font-family: 'Rajdhani', sans-serif; font-size: .82rem;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.45); margin-top: 8px;
     }
-    .vision-card p { font-size: .95rem; line-height: 1.75; color: var(--cream-dark); }
-    .section-eyebrow {
-      font-family: 'Oswald', sans-serif; font-size: .75rem;
-      letter-spacing: .25em; text-transform: uppercase; color: var(--gold);
-      display: block; margin-bottom: 12px;
+    .counter-bars {
+      display: flex; justify-content: center; gap: 8px; margin-top: 20px;
     }
-    .section-title {
-      font-family: 'Playfair Display', serif; font-weight: 900;
-      font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; color: var(--cream);
+    .c-bar {
+      height: 4px; flex: 1; max-width: 80px; border-radius: 4px;
+      animation: barPulse 2s ease-in-out infinite;
     }
-    .section-title em { color: var(--gold); font-style: italic; }
+    .c-bar:nth-child(1) { background: var(--orange); animation-delay: 0s; }
+    .c-bar:nth-child(2) { background: var(--white); animation-delay: .2s; }
+    .c-bar:nth-child(3) { background: var(--green-lite); animation-delay: .4s; }
+    .c-bar:nth-child(4) { background: #60A5FF; animation-delay: .6s; }
+    @keyframes barPulse { 0%,100%{opacity:.3;transform:scaleX(.7)} 50%{opacity:1;transform:scaleX(1)} }
 
-    /* ─── MANIFESTO ─── */
-    #manifesto {
-      background: linear-gradient(180deg, var(--green-dark), var(--green-mid) 100%);
+    /* ══ VISION ══ */
+    #vision { }
+    .vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    .v-card {
+      padding: 32px 28px; border-radius: 4px; position: relative; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      transition: transform .2s, box-shadow .2s;
     }
+    .v-card:hover { transform: translateY(-4px); box-shadow: 0 16px 50px rgba(0,0,0,.4); }
+    .v-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    }
+    .v-card:nth-child(1)::before { background: linear-gradient(90deg, var(--orange), var(--orange-lite)); }
+    .v-card:nth-child(2)::before { background: linear-gradient(90deg, var(--blue), #60A5FF); }
+    .v-card h3 {
+      font-family: 'Playfair Display', serif; font-size: 1.35rem;
+      margin-bottom: 12px; color: var(--white);
+    }
+    .v-card p { font-size: .92rem; line-height: 1.75; color: rgba(255,255,255,.65); }
+
+    /* ══ MANIFESTO ══ */
+    #manifesto { }
     .manifesto-header { text-align: center; margin-bottom: 56px; }
-    .demand-list { display: flex; flex-direction: column; gap: 0; }
     .demand-item {
-      display: grid; grid-template-columns: 60px 1fr; gap: 0;
-      border-bottom: 1px solid rgba(200,168,58,.15);
-      padding: 28px 0; position: relative;
-      transition: background .2s;
-      cursor: default;
+      display: grid; grid-template-columns: 64px 1fr;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding: 28px 0; transition: background .2s; cursor: default;
     }
-    .demand-item:hover { background: rgba(200,168,58,.04); }
-    .demand-num {
-      font-family: 'Playfair Display', serif; font-size: 2.6rem;
-      font-weight: 900; color: rgba(200,168,58,.22); line-height: 1;
-      align-self: flex-start; padding-top: 4px;
-      transition: color .2s;
+    .demand-item:hover { background: rgba(255,255,255,.03); border-radius: 4px; }
+    .d-num {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 2.8rem; line-height: 1; align-self: flex-start; padding-top: 2px;
+      transition: opacity .2s; opacity: .2;
     }
-    .demand-item:hover .demand-num { color: rgba(200,168,58,.5); }
-    .demand-body { padding-left: 16px; }
-    .demand-body h3 {
-      font-family: 'Oswald', sans-serif; font-size: 1.05rem; font-weight: 700;
-      letter-spacing: .04em; color: var(--cream); margin-bottom: 6px;
-      line-height: 1.4;
+    .demand-item:nth-child(1) .d-num { color: var(--orange); }
+    .demand-item:nth-child(2) .d-num { color: #60A5FF; }
+    .demand-item:nth-child(3) .d-num { color: var(--green-lite); }
+    .demand-item:nth-child(4) .d-num { color: var(--orange-lite); }
+    .demand-item:nth-child(5) .d-num { color: #60A5FF; }
+    .demand-item:hover .d-num { opacity: .7; }
+    .d-body { padding-left: 16px; }
+    .d-tag {
+      display: inline-block; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 2px; margin-bottom: 7px;
     }
-    .demand-body h3 strong { color: var(--orange-light); }
-    .demand-body p { font-size: .88rem; color: var(--cream-dark); line-height: 1.65; }
-    .demand-tag {
-      display: inline-block; background: rgba(201,80,26,.15); color: var(--orange-light);
-      font-family: 'Oswald', sans-serif; font-size: .65rem; letter-spacing: .15em;
-      text-transform: uppercase; padding: 3px 10px; margin-bottom: 6px;
-      border: 1px solid rgba(201,80,26,.3);
+    .demand-item:nth-child(odd)  .d-tag { background: rgba(255,107,0,.15); color: var(--orange-lite); border: 1px solid rgba(255,107,0,.3); }
+    .demand-item:nth-child(even) .d-tag { background: rgba(0,71,171,.2); color: #60A5FF; border: 1px solid rgba(0,71,171,.4); }
+    .d-body h3 {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; letter-spacing: .03em; color: var(--white);
+      margin-bottom: 6px; line-height: 1.4;
     }
+    .d-body h3 strong { color: var(--orange-lite); }
+    .d-body p { font-size: .88rem; color: rgba(255,255,255,.6); line-height: 1.7; }
 
-    /* ─── ELIGIBILITY ─── */
-    #join {
-      background: var(--green-dark);
-      position: relative; overflow: hidden;
-    }
-    #join::before {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(ellipse at 50% 100%, rgba(42,107,46,.25), transparent 70%);
-    }
-    .join-inner { position: relative; z-index: 1; }
+    /* ══ ELIGIBILITY ══ */
+    #join { }
     .join-header { text-align: center; margin-bottom: 48px; }
-    .checklist-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-      max-width: 640px; margin: 0 auto 40px;
-    }
+    .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 640px; margin: 0 auto 36px; }
     .check-item {
       display: flex; align-items: center; gap: 14px;
-      background: rgba(255,255,255,.03); border: 1.5px solid rgba(200,168,58,.2);
+      background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.1);
       padding: 18px 20px; cursor: pointer; user-select: none;
-      transition: all .2s; position: relative; overflow: hidden;
+      border-radius: 4px; transition: all .2s;
     }
-    .check-item:hover { border-color: rgba(200,168,58,.5); background: rgba(200,168,58,.06); }
-    .check-item.checked {
-      border-color: var(--green-light);
-      background: rgba(42,107,46,.18);
-    }
-    .check-item.checked::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(42,107,46,.12), transparent);
-      pointer-events: none;
-    }
+    .check-item:hover { border-color: rgba(255,107,0,.5); background: rgba(255,107,0,.06); }
+    .check-item.checked { border-color: var(--green-lite); background: rgba(19,136,8,.15); }
     .check-box {
-      width: 26px; height: 26px; border: 2px solid rgba(200,168,58,.5);
+      width: 26px; height: 26px; border: 2px solid rgba(255,255,255,.3);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all .2s; font-size: 1rem;
+      flex-shrink: 0; border-radius: 4px; transition: all .2s; font-size: .95rem;
     }
-    .check-item.checked .check-box {
-      background: var(--green-light); border-color: var(--green-light); color: #fff;
-    }
+    .check-item.checked .check-box { background: var(--green); border-color: var(--green-lite); color: #fff; box-shadow: 0 0 12px var(--green-glow); }
     .check-label {
-      font-family: 'Oswald', sans-serif; font-weight: 600;
-      font-size: 1rem; letter-spacing: .05em; text-transform: uppercase;
-      color: var(--cream-dark);
+      font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: 1rem; letter-spacing: .06em; text-transform: uppercase;
+      color: rgba(255,255,255,.7);
     }
-    .check-item.checked .check-label { color: var(--cream); }
+    .check-item.checked .check-label { color: var(--white); }
     .join-cta { text-align: center; }
     #joinBtn {
-      background: var(--cream-dark); color: var(--text-dark);
-      font-family: 'Oswald', sans-serif; font-weight: 700;
-      font-size: 1.1rem; letter-spacing: .12em; text-transform: uppercase;
-      padding: 16px 44px; border: none; cursor: not-allowed;
-      transition: all .3s; opacity: .45; display: inline-block;
+      background: rgba(255,255,255,.1); color: rgba(255,255,255,.4);
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.05rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 15px 44px; border: 2px solid rgba(255,255,255,.1);
+      cursor: not-allowed; border-radius: 2px; transition: all .3s;
     }
     #joinBtn.active {
-      background: var(--orange); color: #fff;
-      cursor: pointer; opacity: 1;
-      box-shadow: 0 8px 32px rgba(201,80,26,.45);
-      animation: pulse 2s infinite;
+      background: linear-gradient(135deg, var(--orange), var(--orange-lite));
+      color: #fff; border-color: transparent; cursor: pointer;
+      box-shadow: 0 8px 32px var(--orange-glow);
+      animation: pulseCTA 2s ease-in-out infinite;
     }
-    #joinBtn.active:hover { background: var(--orange-light); transform: scale(1.03); }
-    .join-hint {
-      font-size: .82rem; color: rgba(240,232,208,.4);
-      margin-top: 14px; text-align: center;
-      font-style: italic;
-    }
+    #joinBtn.active:hover { transform: scale(1.03); }
+    @keyframes pulseCTA { 0%,100%{box-shadow:0 8px 28px var(--orange-glow)} 50%{box-shadow:0 8px 48px rgba(255,107,0,.6)} }
+    .join-hint { font-size: .82rem; color: rgba(255,255,255,.3); margin-top: 14px; font-style: italic; }
 
-    /* ─── MODAL ─── */
+    /* ══ MODAL ══ */
     #modal {
       display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,.8); backdrop-filter: blur(4px);
+      background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
       align-items: center; justify-content: center; padding: 20px;
     }
     #modal.open { display: flex; }
     .modal-box {
-      background: var(--green-dark); border: 1px solid rgba(200,168,58,.35);
+      background: var(--navy); border: 1px solid rgba(255,255,255,.12);
       max-width: 480px; width: 100%; padding: 40px 32px; text-align: center;
-      position: relative; animation: fadeUp .4s ease;
-      box-shadow: 0 30px 80px rgba(0,0,0,.7);
+      position: relative; border-radius: 6px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,107,0,.2);
+      animation: fadeUp .35s ease;
+    }
+    .modal-box::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:6px 6px 0 0;
+      background: linear-gradient(90deg, var(--orange), var(--white), var(--green), var(--blue));
     }
     .modal-close {
       position: absolute; top: 14px; right: 18px;
-      background: none; border: none; color: var(--cream-dark);
-      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      background: none; border: none; color: rgba(255,255,255,.5);
+      font-size: 1.4rem; cursor: pointer;
     }
-    .modal-box h2 {
-      font-family: 'Playfair Display', serif; font-size: 1.8rem;
-      color: var(--gold); margin-bottom: 8px;
-    }
-    .modal-box p { font-size: .92rem; color: var(--cream-dark); margin-bottom: 28px; line-height: 1.6; }
-    .modal-links { display: flex; flex-direction: column; gap: 12px; }
+    .modal-box h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--orange-lite); margin-bottom:8px; }
+    .modal-box p { font-size:.9rem; color:rgba(255,255,255,.65); margin-bottom:26px; line-height:1.65; }
+    .modal-links { display:flex; flex-direction:column; gap:10px; }
     .modal-link {
-      display: flex; align-items: center; gap: 14px;
-      background: rgba(255,255,255,.04); border: 1px solid rgba(200,168,58,.2);
-      padding: 14px 20px; text-decoration: none; color: var(--cream);
-      font-family: 'Oswald', sans-serif; font-size: .95rem; letter-spacing: .05em;
-      transition: all .2s;
+      display:flex; align-items:center; gap:14px;
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+      padding:13px 18px; text-decoration:none; color:rgba(255,255,255,.8);
+      font-family:'Rajdhani',sans-serif; font-size:.92rem; letter-spacing:.05em;
+      border-radius:4px; transition:all .2s;
     }
-    .modal-link:hover { background: rgba(200,168,58,.1); border-color: rgba(200,168,58,.5); }
-    .modal-link svg { flex-shrink: 0; }
+    .modal-link:hover { background:rgba(255,107,0,.1); border-color:var(--orange); color:var(--white); }
 
-    /* ─── FOOTER ─── */
+    /* ══ REGISTER ══ */
+    #register {
+      background: linear-gradient(160deg,
+        rgba(0,71,171,.12) 0%,
+        rgba(6,14,43,0) 40%,
+        rgba(255,107,0,.08) 100%);
+    }
+    .register-inner { text-align: center; }
+    .register-form {
+      max-width: 580px; margin: 0 auto;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: 44px 40px 40px;
+      position: relative; overflow: hidden;
+    }
+    .register-form::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:4px;
+      background: linear-gradient(90deg, var(--orange), var(--white) 33%, var(--green) 66%, var(--blue));
+      background-size: 200% 100%;
+      animation: divFlow 3s linear infinite;
+    }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label {
+      display: block; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-bottom: 8px;
+    }
+    .form-group label .req { color: var(--orange-lite); }
+    .form-group label .opt { color: rgba(255,255,255,.3); font-size:.65rem; }
+    .form-group input {
+      width: 100%; background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(255,255,255,.12); color: var(--white);
+      font-family: 'Libre Baskerville', serif; font-size: .95rem;
+      padding: 13px 16px; outline: none; border-radius: 4px;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+      -webkit-appearance: none;
+    }
+    .form-group input::placeholder { color: rgba(255,255,255,.2); }
+    .form-group input:focus { border-color: var(--orange-lite); background: rgba(255,107,0,.05); box-shadow: 0 0 0 3px rgba(255,107,0,.12); }
+    .form-error { color: #FF7070; font-size: .75rem; margin-top: 5px; display: none; font-style: italic; }
+    .form-error.show { display: block; }
+
+    .oath-box {
+      background: rgba(19,136,8,.08);
+      border: 1.5px solid rgba(19,136,8,.3);
+      border-radius: 6px; padding: 22px 20px;
+      margin: 24px 0; text-align: left; position: relative;
+    }
+    .oath-flag { text-align: center; font-size: 1.5rem; margin-bottom: 12px; }
+    .oath-label { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; user-select: none; }
+    .oath-checkbox {
+      width: 24px; height: 24px; min-width: 24px;
+      border: 2px solid rgba(19,136,8,.6); border-radius: 4px;
+      background: transparent; display: flex; align-items: center; justify-content: center;
+      margin-top: 2px; transition: all .2s; font-size: .9rem;
+    }
+    .oath-checkbox.ticked { background: var(--green); border-color: var(--green-lite); color: #fff; box-shadow: 0 0 14px var(--green-glow); }
+    .oath-text { font-size: .88rem; line-height: 1.75; color: rgba(255,255,255,.65); font-style: italic; }
+    .oath-text strong { color: var(--white); font-style: normal; }
+
+    #regSubmitBtn {
+      width: 100%; background: rgba(255,255,255,.08); color: rgba(255,255,255,.35);
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; letter-spacing: .14em; text-transform: uppercase;
+      padding: 17px; border: 2px solid rgba(255,255,255,.1);
+      cursor: not-allowed; border-radius: 4px; transition: all .3s; margin-top: 4px;
+    }
+    #regSubmitBtn.ready {
+      background: linear-gradient(135deg, var(--orange), var(--orange-lite));
+      color: #fff; border-color: transparent; cursor: pointer;
+      box-shadow: 0 8px 32px var(--orange-glow);
+      animation: pulseCTA 2s ease-in-out infinite;
+    }
+    #regSubmitBtn.ready:hover { transform: translateY(-2px); }
+
+    /* success */
+    #regSuccess { display:none; padding:10px 0; }
+    #regSuccess.show { display:block; animation: fadeUp .5s ease; }
+    .success-icon { font-size: 3.5rem; margin-bottom: 14px; animation: bounce .6s ease; }
+    @keyframes bounce { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+    #regSuccess h3 { font-family:'Playfair Display',serif; font-size:1.9rem; color:var(--orange-lite); margin-bottom:10px; }
+    #regSuccess p { color:rgba(255,255,255,.65); font-size:.95rem; line-height:1.7; }
+    .success-flag { font-size: 1.1rem; letter-spacing:.05em; margin-top:16px; display:block; }
+
+    /* ══ FOOTER ══ */
     footer {
-      background: var(--green-dark);
-      border-top: 1px solid rgba(200,168,58,.2);
+      background: rgba(0,0,0,.4);
+      border-top: 1px solid rgba(255,255,255,.07);
       padding: 60px 20px 36px;
     }
     .footer-inner {
-      max-width: 960px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px;
+      max-width: 980px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 48px;
     }
-    .footer-brand img { height: 60px; margin-bottom: 14px; border-radius: 4px; }
-    .footer-brand p {
-      font-size: .88rem; color: var(--cream-dark); line-height: 1.65;
+    .footer-brand img { height: 58px; border-radius: 4px; margin-bottom: 14px; border: 2px solid rgba(255,107,0,.3); }
+    .footer-brand .motto { font-family:'Playfair Display',serif; font-style:italic; color:var(--orange-lite); font-size:1rem; display:block; margin-bottom:10px; }
+    .footer-brand p { font-size:.87rem; color:rgba(255,255,255,.5); line-height:1.7; }
+    .f-col h4 { font-family:'Rajdhani',sans-serif; font-size:.72rem; letter-spacing:.25em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:16px; }
+    .f-col ul { list-style:none; }
+    .f-col ul li { margin-bottom:10px; }
+    .f-col ul li a, .f-col a { color:rgba(255,255,255,.55); text-decoration:none; font-size:.9rem; transition:color .2s; }
+    .f-col ul li a:hover, .f-col a:hover { color:var(--orange-lite); }
+    .social-col { display:flex; flex-direction:column; gap:10px; }
+    .s-btn {
+      display:flex; align-items:center; gap:10px;
+      border:1px solid rgba(255,255,255,.1); padding:9px 14px; border-radius:4px;
+      color:rgba(255,255,255,.6) !important; font-family:'Rajdhani',sans-serif;
+      font-size:.82rem; letter-spacing:.07em; text-transform:uppercase;
+      text-decoration:none; transition:all .2s;
     }
-    .footer-brand .motto {
-      font-family: 'Playfair Display', serif; font-style: italic;
-      color: var(--gold); font-size: 1rem; margin-bottom: 10px; display: block;
-    }
-    .footer-col h4 {
-      font-family: 'Oswald', sans-serif; font-size: .78rem;
-      letter-spacing: .2em; text-transform: uppercase; color: var(--gold);
-      margin-bottom: 16px;
-    }
-    .footer-col ul { list-style: none; }
-    .footer-col ul li { margin-bottom: 10px; }
-    .footer-col ul li a, .footer-col a {
-      color: var(--cream-dark); text-decoration: none; font-size: .9rem;
-      transition: color .2s;
-    }
-    .footer-col ul li a:hover, .footer-col a:hover { color: var(--gold); }
-    .social-row { display: flex; gap: 14px; margin-top: 6px; flex-wrap: wrap; }
-    .social-btn {
-      display: flex; align-items: center; gap: 8px;
-      border: 1px solid rgba(200,168,58,.25); padding: 8px 14px;
-      color: var(--cream-dark) !important; font-family: 'Oswald', sans-serif;
-      font-size: .8rem; letter-spacing: .07em; text-transform: uppercase;
-      transition: all .2s; text-decoration: none;
-    }
-    .social-btn:hover { border-color: var(--gold); color: var(--gold) !important; }
+    .s-btn:hover { border-color:var(--orange-lite); color:var(--orange-lite) !important; background:rgba(255,107,0,.07); }
     .footer-bottom {
-      max-width: 960px; margin: 40px auto 0;
-      border-top: 1px solid rgba(200,168,58,.12);
-      padding-top: 24px;
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-      gap: 10px;
+      max-width:980px; margin:40px auto 0; padding-top:22px;
+      border-top:1px solid rgba(255,255,255,.07);
+      display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px;
     }
-    .footer-bottom p { font-size: .78rem; color: rgba(240,232,208,.35); }
-    .footer-bottom .disclaimer {
-      font-size: .72rem; color: rgba(240,232,208,.25);
-      font-style: italic;
+    .footer-bottom p { font-size:.75rem; color:rgba(255,255,255,.25); }
+    .footer-bottom .disc { font-size:.7rem; color:rgba(255,255,255,.18); font-style:italic; }
+
+    /* ══ ANIMATIONS ══ */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .reveal { opacity:0; transform:translateY(30px); transition:opacity .7s ease,transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ══ ISSUES GRID ══ */
+    .issues-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px; margin-top: 48px;
+    }
+    .issue-card {
+      display: flex; gap: 18px; align-items: flex-start;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 6px; padding: 24px 22px;
+      position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .issue-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.15); }
+    .issue-card::before {
+      content:''; position:absolute; top:0; left:0; bottom:0; width:3px; border-radius:6px 0 0 6px;
+    }
+    .issue-card[data-color="orange"]::before { background: linear-gradient(180deg, var(--orange), var(--orange-lite)); }
+    .issue-card[data-color="blue"]::before   { background: linear-gradient(180deg, var(--blue), #60A5FF); }
+    .issue-card[data-color="green"]::before  { background: linear-gradient(180deg, var(--green), var(--green-lite)); }
+    .issue-card[data-color="orange"]:hover { box-shadow: 0 8px 32px rgba(255,107,0,.15); }
+    .issue-card[data-color="blue"]:hover   { box-shadow: 0 8px 32px rgba(0,71,171,.2); }
+    .issue-card[data-color="green"]:hover  { box-shadow: 0 8px 32px rgba(19,136,8,.15); }
+    .issue-icon {
+      font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
+    }
+    .issue-body h3 {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1rem; letter-spacing: .04em; color: var(--white);
+      margin-bottom: 7px; line-height: 1.3;
+    }
+    .issue-body p { font-size: .83rem; color: rgba(255,255,255,.55); line-height: 1.7; }
+
+    /* ══ SVG LOGO / BANNER (inline generated) ══ */
+    .cjp-logo-svg { display:block; }
+
+    @media(max-width:640px){
+      .issues-grid { grid-template-columns: 1fr; }
     }
 
-    /* ─── ANIMATIONS ─── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 8px 32px rgba(201,80,26,.4); }
-      50%       { box-shadow: 0 8px 48px rgba(201,80,26,.7); }
-    }
-
-    /* scroll reveal */
-    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    /* ─── MOBILE ─── */
-    @media (max-width: 640px) {
-      .vision-grid { grid-template-columns: 1fr; }
-      .checklist-grid { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr; }
-      #topbar nav { display: none; }
-      .demand-item { grid-template-columns: 48px 1fr; }
-      .demand-num { font-size: 2rem; }
+    /* ══ MOBILE ══ */
+    @media(max-width:640px){
+      .vision-grid,.footer-inner { grid-template-columns:1fr; }
+      .checklist-grid { grid-template-columns:1fr; }
+      #topbar nav { display:none; }
+      .demand-item { grid-template-columns:50px 1fr; }
+      .register-form { padding:32px 22px 28px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ─── TOPBAR ─── -->
+<!-- TOPBAR -->
 <header id="topbar">
   <a href="#" class="brand">
-    <img src="logo.webp" alt="CJP Logo" />
+    <img src="logo-circle.webp" alt="CJP Logo" style="height:36px;width:36px;border-radius:50%;border:2px solid #FF8C38;object-fit:cover;" />
     <span>CJP</span>
   </a>
   <nav>
     <a href="#vision">Vision</a>
-    <a href="#manifesto">Manifesto</a>
-    <a href="#join">Join</a>
-    <a href="#join" class="nav-cta">Join Now</a>
+    <a href="#manifesto">Real Issues</a>
+    <a href="#join">Eligibility</a>
+    <a href="#register" class="nav-cta">Join Our Party</a>
   </nav>
 </header>
 
-<!-- ─── HERO ─── -->
+<!-- HERO -->
 <section id="hero">
-  <div class="hero-img-wrap">
-    <img src="hero.webp" alt="Cockroach Janta Party — Are You Eligible?" loading="eager" />
-    <span class="hero-badge">🪳 Est. 2025</span>
+<!-- Rally Banner Image -->
+  <div style="margin-bottom:32px;animation:fadeUp .7s ease both;width:100%;">
+    <img src="banner.webp"
+         alt="Cockroach Janta Party — Revolutionary People's Power"
+         style="width:min(92vw,860px);display:block;margin:0 auto;border-radius:8px;
+                box-shadow:0 0 0 2px rgba(255,107,0,.4), 0 24px 80px rgba(0,0,0,.7);
+                border-top:3px solid #FF6B00;border-bottom:3px solid #138808;"
+         loading="eager" />
   </div>
-  <h1>Voice of the <em>Lazy</em><br>& Unemployed.</h1>
-  <p class="subtitle">A political movement for the people the system forgot to count. We didn't choose politics — politics chose to ignore us.</p>
+
+  <img src="hero.webp" class="hero-img" alt="Cockroach Janta Party — Are You Eligible?" loading="lazy" />
+  <div class="flag-bar"></div>
+
+  <h1>
+    <span class="w1">Voice</span> <span class="w2">of the</span><br>
+    <span class="w1">Lazy</span> <span class="w2">&amp;</span> <span class="w3">Unemployed.</span>
+  </h1>
+
+  <p class="sub">A political movement for the people the system forgot to count. We didn't choose politics — politics chose to ignore us.</p>
+
+  <!-- Live member counter in hero -->
+  <div class="hero-counter">
+    <div>
+      <div class="hc-num" id="heroCount">0</div>
+      <div class="hc-label">Members<br>Joined</div>
+    </div>
+    <div style="width:1px;height:44px;background:rgba(255,255,255,.1)"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+      <div class="hc-dot"></div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.4);text-transform:uppercase;">Live</span>
+    </div>
+  </div>
 
   <div class="hero-stats">
-    <div class="stat">
-      <span class="stat-num">5</span>
-      <span class="stat-label">Demands</span>
-    </div>
-    <span class="stat-sep">|</span>
-    <div class="stat">
-      <span class="stat-num">₹0</span>
-      <span class="stat-label">Corp. Donors</span>
-    </div>
-    <span class="stat-sep">|</span>
-    <div class="stat">
-      <span class="stat-num">∞</span>
-      <span class="stat-label">Patience</span>
-    </div>
-    <span class="stat-sep">|</span>
-    <div class="stat">
-      <span class="stat-num">1</span>
-      <span class="stat-label">Founder. No PA.</span>
-    </div>
+    <div class="st"><span class="st-n">10</span><span class="st-l">Real Issues</span></div>
+    <span class="st-sep">|</span>
+    <div class="st"><span class="st-n">₹0</span><span class="st-l">Corp. Donors</span></div>
+    <span class="st-sep">|</span>
+    <div class="st"><span class="st-n">∞</span><span class="st-l">Patience</span></div>
+    <span class="st-sep">|</span>
+    <div class="st"><span class="st-n">1.4B</span><span class="st-l">Reasons to Fight</span></div>
   </div>
 
   <div class="hero-ctas">
-    <a href="#join" class="btn-primary">🪳 Join the Party</a>
-    <a href="#manifesto" class="btn-secondary">Read the Manifesto</a>
+    <a href="#register" class="btn-o">🪳 Join the Party</a>
+    <a href="#manifesto" class="btn-ghost">Read the Manifesto</a>
   </div>
 </section>
 
-<!-- ─── MARQUEE ─── -->
+<!-- MARQUEE -->
 <div class="marquee-wrap" aria-hidden="true">
   <div class="marquee-inner">
-    <span>Stronger Together</span>
-    <span>We Spread Fast</span>
-    <span>Vote CJP</span>
-    <span>Mandate Is Ours</span>
-    <span>A New Dawn for Cockroaches</span>
-    <span>Voting by Molting</span>
-    <span>Stronger Together</span>
-    <span>We Spread Fast</span>
-    <span>Vote CJP</span>
-    <span>Mandate Is Ours</span>
-    <span>A New Dawn for Cockroaches</span>
-    <span>Voting by Molting</span>
+    <span>Stronger Together</span><span>We Spread Fast</span><span>Vote CJP</span>
+    <span>Mandate Is Ours</span><span>A New Dawn</span><span>Voting by Molting</span>
+    <span>Jai Hind 🇮🇳</span><span>Corruption Free India</span>
+    <span>Stronger Together</span><span>We Spread Fast</span><span>Vote CJP</span>
+    <span>Mandate Is Ours</span><span>A New Dawn</span><span>Voting by Molting</span>
+    <span>Jai Hind 🇮🇳</span><span>Corruption Free India</span>
   </div>
 </div>
 
-<!-- ─── VISION ─── -->
+<!-- MEMBER COUNTER SECTION -->
+<section id="counter-section">
+  <div class="counter-inner reveal">
+    <div class="counter-title">🪳 Growing Every Day — Our Swarm</div>
+    <div class="big-counter" id="bigCount">0</div>
+    <div class="counter-sub">Proud Indians Have Joined the Movement</div>
+    <div class="counter-bars">
+      <div class="c-bar"></div>
+      <div class="c-bar"></div>
+      <div class="c-bar"></div>
+      <div class="c-bar"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- VISION -->
 <section id="vision">
   <div class="section reveal">
-    <span class="section-eyebrow">Our Movement</span>
-    <h2 class="section-title">Not here to set up<br>another <em>PM CARES</em>.</h2>
-    <p style="color:var(--cream-dark);max-width:560px;margin:18px 0 48px;font-size:.98rem;line-height:1.75;">Here to ask where the money went. Here to represent the generation told to "work harder" while the rulebook was written by people who never had to.</p>
-
-    <div class="vision-grid">
-      <div class="vision-card">
+    <span class="eyebrow">Our Movement</span>
+    <h2 class="sec-title">The system is <em>failing</em><br>every single day.</h2>
+    <div class="vision-grid" style="margin-top:48px;">
+      <div class="v-card">
         <h3>The Movement's Vision</h3>
-        <p>A satirical but razor-sharp political platform for India's disillusioned youth — those who are chronically online, politically aware, and tired of being gaslit by every party, every election cycle, every breaking news panel.</p>
+        <p>A razor-sharp political platform for India's disillusioned youth. We are politically aware, deeply impacted by systemic failures, and tired of being gaslit by empty promises, endless election cycles, and noisy primetime panels. It is time to look past the distractions and demand absolute accountability for the real crises crippling our nation's future.</p>
       </div>
-      <div class="vision-card">
+      <div class="v-card">
         <h3>Who We Represent</h3>
-        <p>Young Indians who keep getting called "lazy" for inheriting a broken economy. The millions whose votes are bought, deleted, or drowned in propaganda. The ones who <em>rant professionally</em> because no one else will listen.</p>
+        <p>We represent the millions inheriting a broken economy. The students whose futures are sold to the highest bidder in paper leaks. The hardworking citizens crushed by daily inflation and stagnant wages. We are the voices drowned out by corruption, political polarization, and endless propaganda. We are the ones who rant professionally — and protest fiercely — because the system has stopped listening.</p>
       </div>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<hr class="divider" />
 
-<!-- ─── MANIFESTO ─── -->
+<!-- MANIFESTO / REAL ISSUES -->
 <section id="manifesto">
   <div class="section reveal">
     <div class="manifesto-header">
-      <span class="section-eyebrow">The 5 Demands</span>
-      <h2 class="section-title">The <em>Manifesto.</em></h2>
-      <p style="color:var(--cream-dark);max-width:520px;margin:16px auto 0;font-size:.95rem;line-height:1.7;">Simple. Non-negotiable. Written by people who actually read the news instead of just appearing on it.</p>
+      <span class="eyebrow">The Ground Reality</span>
+      <h2 class="sec-title">What We Are <em>Fighting</em> For.</h2>
+      <p style="color:rgba(255,255,255,.55);max-width:600px;margin:16px auto 0;font-size:.95rem;line-height:1.75;">We are done with manufactured outrages. The CJP stands for urgent action on the everyday disasters affecting the common citizen.</p>
     </div>
 
-    <div class="demand-list">
+    <div class="issues-grid">
 
-      <div class="demand-item">
-        <span class="demand-num">01</span>
-        <div class="demand-body">
-          <span class="demand-tag">Judiciary</span>
-          <h3><strong>No Rajya Sabha seat</strong> for retired Chief Justices.</h3>
-          <p>If you protected the Constitution for 30 years, you don't get a reward seat in Parliament six months later. Pick a lane.</p>
+      <div class="issue-card" data-color="orange">
+        <div class="issue-icon">📉</div>
+        <div class="issue-body">
+          <h3>Unemployment &amp; Underemployment</h3>
+          <p>A rapidly growing workforce that has degrees, but no opportunities or fair wages. Millions of qualified Indians are either jobless or trapped in work far below their potential.</p>
         </div>
       </div>
 
-      <div class="demand-item">
-        <span class="demand-num">02</span>
-        <div class="demand-body">
-          <span class="demand-tag">Elections</span>
-          <h3><strong>UAPA arrests</strong> for Election Commissioners who delete legit votes.</h3>
-          <p>Misuse of power cuts both ways. If UAPA can silence dissent, it can silence election fraud. Simple math.</p>
+      <div class="issue-card" data-color="blue">
+        <div class="issue-icon">📝</div>
+        <div class="issue-body">
+          <h3>Paper Leaks &amp; Exam Corruption</h3>
+          <p>Syndicates are systematically destroying the futures of millions of honest students. Demand harsh, immediate penalties for every person in the chain — top to bottom.</p>
         </div>
       </div>
 
-      <div class="demand-item">
-        <span class="demand-num">03</span>
-        <div class="demand-body">
-          <span class="demand-tag">Representation</span>
-          <h3><strong>50% reservation for women</strong> in Parliament &amp; Cabinet.</h3>
-          <p>Half the population. Half the seats. Not revolutionary — just arithmetic. We'll wait.</p>
+      <div class="issue-card" data-color="green">
+        <div class="issue-icon">🛒</div>
+        <div class="issue-body">
+          <h3>Cost of Living &amp; Inflation</h3>
+          <p>Basic survival — food, housing, fuel — has become unaffordable for the middle and lower classes. Policies that make the rich richer while squeezing the rest must be challenged.</p>
         </div>
       </div>
 
-      <div class="demand-item">
-        <span class="demand-num">04</span>
-        <div class="demand-body">
-          <span class="demand-tag">Media</span>
-          <h3><strong>Cancel media licenses</strong> for oligarchs; investigate Godi media anchors.</h3>
-          <p>A free press is not a press that's been bought. Investigate every prime-time anchor who traded journalism for access.</p>
+      <div class="issue-card" data-color="orange">
+        <div class="issue-icon">🏛️</div>
+        <div class="issue-body">
+          <h3>Corruption &amp; Bureaucracy</h3>
+          <p>Red tape and bribery are required to get basic public work done. Dismantling this systemic rot is not optional — it is the foundation of every other reform.</p>
         </div>
       </div>
 
-      <div class="demand-item">
-        <span class="demand-num">05</span>
-        <div class="demand-body">
-          <span class="demand-tag">Accountability</span>
-          <h3><strong>20-year election ban</strong> for defecting MLAs/MPs.</h3>
-          <p>You were elected on a mandate. Jumping ship mid-term is betrayal. We'll keep the scoreboard.</p>
+      <div class="issue-card" data-color="blue">
+        <div class="issue-icon">🏗️</div>
+        <div class="issue-body">
+          <h3>Weak Public Infrastructure</h3>
+          <p>Where does our tax money go when bridges collapse, roads wash away, and public transit remains unsafe and overcrowded? We demand a full public audit — every rupee.</p>
+        </div>
+      </div>
+
+      <div class="issue-card" data-color="green">
+        <div class="issue-icon">🏥</div>
+        <div class="issue-body">
+          <h3>Education &amp; Healthcare</h3>
+          <p>Crumbling public schools and overburdened government hospitals that fail the poorest citizens. An overhaul is not a demand — it is a constitutional obligation.</p>
+        </div>
+      </div>
+
+      <div class="issue-card" data-color="orange">
+        <div class="issue-icon">🌾</div>
+        <div class="issue-body">
+          <h3>Farmer Distress</h3>
+          <p>Fair pricing, debt relief, and sustainable agricultural policies for the backbone of our country. The people who feed India should never go hungry or die in debt.</p>
+        </div>
+      </div>
+
+      <div class="issue-card" data-color="blue">
+        <div class="issue-icon">🌫️</div>
+        <div class="issue-body">
+          <h3>Pollution &amp; Environmental Damage</h3>
+          <p>Toxic air and polluted water are not inconveniences — they are national emergencies killing people every single day. Treat them as such, immediately.</p>
+        </div>
+      </div>
+
+      <div class="issue-card" data-color="green">
+        <div class="issue-icon">⚖️</div>
+        <div class="issue-body">
+          <h3>Judicial Delays</h3>
+          <p>Justice delayed for decades is justice denied. Faster courts, more judges, digitized case management — the solutions exist. The political will is what's missing.</p>
+        </div>
+      </div>
+
+      <div class="issue-card" data-color="orange">
+        <div class="issue-icon">🔥</div>
+        <div class="issue-body">
+          <h3>Political Polarization &amp; Social Division</h3>
+          <p>Communal and social divides are manufactured tools of distraction. We reject every attempt to pit Indian against Indian while the real issues go unaddressed.</p>
         </div>
       </div>
 
@@ -589,36 +854,22 @@
   </div>
 </section>
 
-<div class="divider"></div>
+<hr class="divider" />
 
-<!-- ─── JOIN ─── -->
+<!-- ELIGIBILITY -->
 <section id="join">
-  <div class="section join-inner reveal">
+  <div class="section reveal">
     <div class="join-header">
-      <span class="section-eyebrow">Membership Eligibility</span>
-      <h2 class="section-title">Are You <em>Eligible?</em></h2>
-      <p style="color:var(--cream-dark);max-width:480px;margin:16px auto 0;font-size:.95rem;line-height:1.7;">Tick what applies. No CV required. No interview. No nepotism.</p>
+      <span class="eyebrow">Membership Eligibility</span>
+      <h2 class="sec-title">Are You <em>Eligible?</em></h2>
+      <p style="color:rgba(255,255,255,.55);max-width:480px;margin:16px auto 0;font-size:.95rem;line-height:1.7;">Tick what applies. No CV required. No interview. No nepotism.</p>
     </div>
-
     <div class="checklist-grid">
-      <div class="check-item" onclick="toggleCheck(this)">
-        <div class="check-box">✓</div>
-        <span class="check-label">Unemployed</span>
-      </div>
-      <div class="check-item" onclick="toggleCheck(this)">
-        <div class="check-box">✓</div>
-        <span class="check-label">Lazy</span>
-      </div>
-      <div class="check-item" onclick="toggleCheck(this)">
-        <div class="check-box">✓</div>
-        <span class="check-label">Chronically Online</span>
-      </div>
-      <div class="check-item" onclick="toggleCheck(this)">
-        <div class="check-box">✓</div>
-        <span class="check-label">Can Rant Professionally</span>
-      </div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Unemployed</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Lazy</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Chronically Online</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-label">Can Rant Professionally</span></div>
     </div>
-
     <div class="join-cta">
       <button id="joinBtn" onclick="openModal()" disabled>Join The Party →</button>
       <p class="join-hint" id="joinHint">Check at least one box to unlock the party doors.</p>
@@ -626,112 +877,197 @@
   </div>
 </section>
 
-<!-- ─── MODAL ─── -->
-<div id="modal" role="dialog" aria-modal="true" aria-label="Join CJP">
+<!-- MODAL -->
+<div id="modal" role="dialog" aria-modal="true">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    <button class="modal-close" onclick="closeModal()">✕</button>
     <h2>Welcome, Comrade 🪳</h2>
-    <p>You're now officially eligible. Pick your weapon of choice and join the swarm.</p>
+    <p>You're eligible. Pick your weapon and join the swarm below.</p>
     <div class="modal-links">
       <a href="https://www.youtube.com/@CockroachJantaPartyindi" target="_blank" rel="noopener" class="modal-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#FF0000"/><path d="M19.5 7.5s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C14.4 4.5 12 4.5 12 4.5s-2.4 0-4.7.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S4.3 9 4.3 10.5v1.4c0 1.5.2 3 .2 3s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.1 7.4.1 7.4.1s2.4 0 4.7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.5.2-3v-1.4C19.7 9 19.5 7.5 19.5 7.5zM10 14.5V9l5.5 2.8L10 14.5z" fill="white"/></svg>
-        Subscribe on YouTube — @CockroachJantaPartyindi
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="#FF0000"/><path d="M19.5 7.5s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C14.4 4.5 12 4.5 12 4.5s-2.4 0-4.7.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S4.3 9 4.3 10.5v1.4c0 1.5.2 3 .2 3s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.1 7.4.1 7.4.1s2.4 0 4.7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.5.2-3v-1.4C19.7 9 19.5 7.5 19.5 7.5zM10 14.5V9l5.5 2.8L10 14.5z" fill="white"/></svg>
+        Subscribe on YouTube
       </a>
       <a href="https://www.instagram.com/cockroachjantapartyindi/" target="_blank" rel="noopener" class="modal-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="url(#ig)"/><defs><linearGradient id="ig" x1="0" y1="24" x2="24" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path d="M12 7.2A4.8 4.8 0 1 0 12 16.8 4.8 4.8 0 0 0 12 7.2zm0 7.9A3.1 3.1 0 1 1 12 8.9 3.1 3.1 0 0 1 12 15.1zm5-8.6a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0zM20.7 8a5.5 5.5 0 0 0-1.4-3.8A5.5 5.5 0 0 0 15.6 3c-1.5-.1-6-.1-7.5 0A5.5 5.5 0 0 0 4.3 4.2 5.5 5.5 0 0 0 2.9 8c-.1 1.5-.1 6 0 7.5A5.5 5.5 0 0 0 4.3 19.3a5.5 5.5 0 0 0 3.8 1.4c1.5.1 6 .1 7.5 0a5.5 5.5 0 0 0 3.8-1.4 5.5 5.5 0 0 0 1.4-3.8c.1-1.5.1-6-.1-7.5zm-1.9 9.1a3.1 3.1 0 0 1-1.7 1.7c-1.2.5-4.1.4-5.4.4s-4.2.1-5.4-.4a3.1 3.1 0 0 1-1.7-1.7C4 15.9 4.1 13 4.1 11.7S4 8.1 4.5 6.9A3.1 3.1 0 0 1 6.2 5.2c1.2-.5 4.1-.4 5.4-.4s4.2-.1 5.4.4a3.1 3.1 0 0 1 1.7 1.7c.5 1.2.4 4.1.4 5.4s.1 4.3-.3 5.5z" fill="white"/></svg>
-        Follow on Instagram — @cockroachjantapartyindi
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="url(#ig2)"/><defs><linearGradient id="ig2" x1="0" y1="24" x2="24" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path d="M12 7.2A4.8 4.8 0 1 0 12 16.8 4.8 4.8 0 0 0 12 7.2zm0 7.9A3.1 3.1 0 1 1 12 8.9 3.1 3.1 0 0 1 12 15.1zm5-8.6a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0zM20.7 8a5.5 5.5 0 0 0-1.4-3.8A5.5 5.5 0 0 0 15.6 3c-1.5-.1-6-.1-7.5 0A5.5 5.5 0 0 0 4.3 4.2 5.5 5.5 0 0 0 2.9 8c-.1 1.5-.1 6 0 7.5A5.5 5.5 0 0 0 4.3 19.3a5.5 5.5 0 0 0 3.8 1.4c1.5.1 6 .1 7.5 0a5.5 5.5 0 0 0 3.8-1.4 5.5 5.5 0 0 0 1.4-3.8c.1-1.5.1-6-.1-7.5zm-1.9 9.1a3.1 3.1 0 0 1-1.7 1.7c-1.2.5-4.1.4-5.4.4s-4.2.1-5.4-.4a3.1 3.1 0 0 1-1.7-1.7C4 15.9 4.1 13 4.1 11.7S4 8.1 4.5 6.9A3.1 3.1 0 0 1 6.2 5.2c1.2-.5 4.1-.4 5.4-.4s4.2-.1 5.4.4a3.1 3.1 0 0 1 1.7 1.7c.5 1.2.4 4.1.4 5.4s.1 4.3-.3 5.5z" fill="white"/></svg>
+        Follow on Instagram
       </a>
       <a href="https://x.com/Cockroach_jpart" target="_blank" rel="noopener" class="modal-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#000"/><path d="M18.2 4h-2.6l-3.5 5L8.4 4H3.8l5.9 8.3L4 20h2.6l3.8-5.3 3.8 5.3H19l-6-8.5L18.2 4z" fill="white"/></svg>
-        Follow on X / Twitter — @Cockroach_jpart
-      </a>
-      <a href="mailto:cockroachjantapartyindi@gmail.com" class="modal-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#EA4335"/><path d="M20 8l-8 5-8-5V7l8 5 8-5v1zm0-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z" fill="white"/></svg>
-        Email — cockroachjantapartyindi@gmail.com
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="#000"/><path d="M18.2 4h-2.6l-3.5 5L8.4 4H3.8l5.9 8.3L4 20h2.6l3.8-5.3 3.8 5.3H19l-6-8.5L18.2 4z" fill="white"/></svg>
+        Follow on X / Twitter
       </a>
     </div>
   </div>
 </div>
 
-<!-- ─── FOOTER ─── -->
+<hr class="divider" />
+
+<!-- JOIN OUR PARTY — REGISTRATION -->
+<section id="register">
+  <div class="section register-inner reveal">
+    <span class="eyebrow">Official Membership</span>
+    <h2 class="sec-title" style="margin-bottom:12px;">Join Our <em>Party.</em></h2>
+    <p style="color:rgba(255,255,255,.55);max-width:500px;margin:0 auto 48px;font-size:.95rem;line-height:1.7;">Register as a member. No fees. No interviews. Just your name, your number, and your word to India.</p>
+
+    <div class="register-form">
+      <div id="regForm">
+        <div class="form-group">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="reg-name" placeholder="e.g. Rahul Kumar" autocomplete="name" />
+          <span class="form-error" id="err-name">Please enter your name.</span>
+        </div>
+        <div class="form-group">
+          <label>Mobile Number <span class="req">*</span></label>
+          <input type="tel" id="reg-phone" placeholder="+91 98765 43210" autocomplete="tel" maxlength="15" />
+          <span class="form-error" id="err-phone">Please enter a valid 10-digit number.</span>
+        </div>
+        <div class="form-group">
+          <label>Email Address <span class="opt">(Optional — needed to receive your welcome email)</span></label>
+          <input type="email" id="reg-email" placeholder="yourname@gmail.com" autocomplete="email" />
+          <span class="form-error" id="err-email">Please enter a valid email address.</span>
+        </div>
+
+        <div class="oath-box">
+          <div class="oath-flag">🇮🇳</div>
+          <div class="oath-label" onclick="toggleOath()">
+            <div class="oath-checkbox" id="oathBox"></div>
+            <p class="oath-text">
+              I, as a proud Indian citizen, solemnly pledge my loyalty to building a
+              <strong>corruption-free India</strong> — where no government will ever again
+              humiliate, belittle, or compare its own citizens to animals as colonisers once did.
+              I stand for the dignity of every Indian.
+              <strong>No one calls us cowards. No one compares us to dogs. Not anymore. Jai Hind. 🇮🇳</strong>
+            </p>
+          </div>
+          <span class="form-error" id="err-oath" style="margin-top:10px;">You must take the pledge to join.</span>
+        </div>
+
+        <button id="regSubmitBtn" onclick="submitRegistration()" disabled>
+          🪳 Take the Oath &amp; Join →
+        </button>
+        <p style="font-size:.72rem;color:rgba(255,255,255,.25);margin-top:12px;font-style:italic;">
+          * If you provide your email, you'll receive a welcome confirmation from us.
+        </p>
+      </div>
+
+      <div id="regSuccess">
+        <div class="success-icon">🪳</div>
+        <h3>Welcome to the Swarm!</h3>
+        <p>
+          You are now an official member of the Cockroach Janta Party.<br>
+          We are unstoppable. We spread fast. We survive everything.<br><br>
+          <span id="emailNote" style="color:rgba(255,255,255,.45);font-size:.85rem;"></span>
+        </p>
+        <strong class="success-flag">Stronger Together. Jai Hind. 🇮🇳</strong>
+        <div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+          <a href="https://www.youtube.com/@CockroachJantaPartyindi" target="_blank" rel="noopener" class="btn-o" style="font-size:.85rem;padding:12px 22px;">📺 Subscribe on YouTube</a>
+          <a href="https://www.instagram.com/cockroachjantapartyindi/" target="_blank" rel="noopener" class="btn-b" style="font-size:.85rem;padding:12px 20px;">Follow on Instagram</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <img src="logo.webp" alt="CJP" />
+      <img src="logo.webp" alt="CJP" style="height:58px;width:auto;border-radius:4px;border:2px solid rgba(255,107,0,.3);display:block;margin-bottom:14px;" />
       <span class="motto">"Stronger Together."</span>
-      <p>The Cockroach Janta Party — a satirical political movement demanding accountability, transparency, and a minimum of dignity from people who wear white kurtas.</p>
+      <p>The Cockroach Janta Party — demanding accountability, transparency, and the basic dignity every Indian citizen deserves.</p>
     </div>
-
-    <div class="footer-col">
+    <div class="f-col">
       <h4>Navigate</h4>
       <ul>
         <li><a href="#vision">Our Vision</a></li>
-        <li><a href="#manifesto">The 5 Demands</a></li>
-        <li><a href="#join">Membership</a></li>
+        <li><a href="#manifesto">Real Issues We Fight</a></li>
+        <li><a href="#join">Eligibility Check</a></li>
+        <li><a href="#register">Join Our Party</a></li>
         <li><a href="mailto:cockroachjantapartyindi@gmail.com">Contact Us</a></li>
       </ul>
     </div>
-
-    <div class="footer-col">
+    <div class="f-col">
       <h4>Connect</h4>
-      <div class="social-row" style="flex-direction:column;gap:10px;">
-        <a href="https://www.youtube.com/@CockroachJantaPartyindi" target="_blank" rel="noopener" class="social-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 7.5s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C14.4 4.5 12 4.5 12 4.5s-2.4 0-4.7.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S4.3 9 4.3 10.5v1.4c0 1.5.2 3 .2 3s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.1 7.4.1 7.4.1s2.4 0 4.7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.5.2-3v-1.4C19.7 9 19.5 7.5 19.5 7.5zM10 14.5V9l5.5 2.8L10 14.5z"/></svg>
-          YouTube
+      <div class="social-col">
+        <a href="https://www.youtube.com/@CockroachJantaPartyindi" target="_blank" rel="noopener" class="s-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 7.5s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C14.4 4.5 12 4.5 12 4.5s-2.4 0-4.7.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S4.3 9 4.3 10.5v1.4c0 1.5.2 3 .2 3s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.1 7.4.1 7.4.1s2.4 0 4.7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.5.2-3v-1.4C19.7 9 19.5 7.5 19.5 7.5zM10 14.5V9l5.5 2.8L10 14.5z"/></svg>YouTube
         </a>
-        <a href="https://www.instagram.com/cockroachjantapartyindi/" target="_blank" rel="noopener" class="social-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7.2A4.8 4.8 0 1 0 12 16.8 4.8 4.8 0 0 0 12 7.2zm0 7.9A3.1 3.1 0 1 1 12 8.9 3.1 3.1 0 0 1 12 15.1zm5-8.6a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0zM20.7 8a5.5 5.5 0 0 0-1.4-3.8A5.5 5.5 0 0 0 15.6 3c-1.5-.1-6-.1-7.5 0A5.5 5.5 0 0 0 4.3 4.2 5.5 5.5 0 0 0 2.9 8c-.1 1.5-.1 6 0 7.5A5.5 5.5 0 0 0 4.3 19.3a5.5 5.5 0 0 0 3.8 1.4c1.5.1 6 .1 7.5 0a5.5 5.5 0 0 0 3.8-1.4 5.5 5.5 0 0 0 1.4-3.8c.1-1.5.1-6-.1-7.5zm-1.9 9.1a3.1 3.1 0 0 1-1.7 1.7c-1.2.5-4.1.4-5.4.4s-4.2.1-5.4-.4a3.1 3.1 0 0 1-1.7-1.7C4 15.9 4.1 13 4.1 11.7S4 8.1 4.5 6.9A3.1 3.1 0 0 1 6.2 5.2c1.2-.5 4.1-.4 5.4-.4s4.2-.1 5.4.4a3.1 3.1 0 0 1 1.7 1.7c.5 1.2.4 4.1.4 5.4s.1 4.3-.3 5.5z"/></svg>
-          Instagram
+        <a href="https://www.instagram.com/cockroachjantapartyindi/" target="_blank" rel="noopener" class="s-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7.2A4.8 4.8 0 1 0 12 16.8 4.8 4.8 0 0 0 12 7.2zm0 7.9A3.1 3.1 0 1 1 12 8.9 3.1 3.1 0 0 1 12 15.1zm5-8.6a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0zM20.7 8a5.5 5.5 0 0 0-1.4-3.8A5.5 5.5 0 0 0 15.6 3c-1.5-.1-6-.1-7.5 0A5.5 5.5 0 0 0 4.3 4.2 5.5 5.5 0 0 0 2.9 8c-.1 1.5-.1 6 0 7.5A5.5 5.5 0 0 0 4.3 19.3a5.5 5.5 0 0 0 3.8 1.4c1.5.1 6 .1 7.5 0a5.5 5.5 0 0 0 3.8-1.4 5.5 5.5 0 0 0 1.4-3.8c.1-1.5.1-6-.1-7.5zm-1.9 9.1a3.1 3.1 0 0 1-1.7 1.7c-1.2.5-4.1.4-5.4.4s-4.2.1-5.4-.4a3.1 3.1 0 0 1-1.7-1.7C4 15.9 4.1 13 4.1 11.7S4 8.1 4.5 6.9A3.1 3.1 0 0 1 6.2 5.2c1.2-.5 4.1-.4 5.4-.4s4.2-.1 5.4.4a3.1 3.1 0 0 1 1.7 1.7c.5 1.2.4 4.1.4 5.4s.1 4.3-.3 5.5z"/></svg>Instagram
         </a>
-        <a href="https://x.com/Cockroach_jpart" target="_blank" rel="noopener" class="social-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 4h-2.6l-3.5 5L8.4 4H3.8l5.9 8.3L4 20h2.6l3.8-5.3 3.8 5.3H19l-6-8.5L18.2 4z"/></svg>
-          Twitter / X
+        <a href="https://x.com/Cockroach_jpart" target="_blank" rel="noopener" class="s-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 4h-2.6l-3.5 5L8.4 4H3.8l5.9 8.3L4 20h2.6l3.8-5.3 3.8 5.3H19l-6-8.5L18.2 4z"/></svg>Twitter / X
         </a>
-        <a href="mailto:cockroachjantapartyindi@gmail.com" class="social-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          Email Us
+        <a href="mailto:cockroachjantapartyindi@gmail.com" class="s-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>Email Us
         </a>
       </div>
     </div>
   </div>
-
   <div class="footer-bottom">
     <p>© 2025 Cockroach Janta Party. All rights reserved.<br>Headquarters: Wherever the WiFi works.</p>
-    <p class="disclaimer">Satire. Parody. Political commentary. Not affiliated with any registered political party.<br>For entertainment &amp; accountability purposes only.</p>
+    <p class="disc">Satire. Parody. Political commentary. Not affiliated with any registered political party.<br>For entertainment &amp; accountability purposes only.</p>
   </div>
 </footer>
 
 <script>
-  // ─── Scroll Reveal
-  const revealEls = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
+  // ── Scroll Reveal
+  const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
   }, { threshold: 0.1 });
-  revealEls.forEach(el => io.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // ─── Checklist
+  // ── Topbar scroll shadow
+  window.addEventListener('scroll', () => {
+    document.getElementById('topbar').style.boxShadow =
+      window.scrollY > 20 ? '0 4px 40px rgba(0,0,0,.6)' : 'none';
+  });
+
+  // ── Member Counter (localStorage keeps count across visits)
+  const COUNTER_KEY = 'cjp_member_count';
+  const BASE_COUNT  = 347; // starting offset so it doesn't show 0 on first deploy
+
+  function getCount() {
+    return BASE_COUNT + parseInt(localStorage.getItem(COUNTER_KEY) || '0');
+  }
+
+  function animateCount(el, target) {
+    const start = 0, dur = 1800;
+    const startTime = performance.now();
+    function step(now) {
+      const p = Math.min((now - startTime) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(ease * target).toLocaleString('en-IN');
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function refreshCounters() {
+    const c = getCount();
+    animateCount(document.getElementById('bigCount'), c);
+    animateCount(document.getElementById('heroCount'), c);
+  }
+  refreshCounters();
+
+  // ── Eligibility Checklist
   function toggleCheck(el) {
     el.classList.toggle('checked');
-    updateJoinBtn();
-  }
-  function updateJoinBtn() {
     const checked = document.querySelectorAll('.check-item.checked').length;
     const btn = document.getElementById('joinBtn');
     const hint = document.getElementById('joinHint');
     if (checked > 0) {
-      btn.classList.add('active');
-      btn.disabled = false;
+      btn.classList.add('active'); btn.disabled = false;
       hint.textContent = checked === 4
-        ? '🪳 You are 100% eligible. The party needs you.' 
-        : `${checked}/4 criteria met. You\'re in — we don\'t set a high bar.`;
+        ? '🪳 You are 100% eligible. The party needs you.'
+        : `${checked}/4 criteria met. You're in — we don't set a high bar.`;
     } else {
-      btn.classList.remove('active');
-      btn.disabled = true;
+      btn.classList.remove('active'); btn.disabled = true;
       hint.textContent = 'Check at least one box to unlock the party doors.';
     }
   }
 
-  // ─── Modal
+  // ── Modal
   function openModal() {
     document.getElementById('modal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -745,11 +1081,101 @@
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  // ─── Topbar shadow on scroll
-  window.addEventListener('scroll', () => {
-    document.getElementById('topbar').style.boxShadow =
-      window.scrollY > 20 ? '0 4px 30px rgba(0,0,0,.5)' : 'none';
-  });
+  // ── Oath toggle
+  let oathTaken = false;
+  function toggleOath() {
+    oathTaken = !oathTaken;
+    const box = document.getElementById('oathBox');
+    box.classList.toggle('ticked', oathTaken);
+    box.textContent = oathTaken ? '✓' : '';
+    if (oathTaken) document.getElementById('err-oath').classList.remove('show');
+    checkRegReady();
+  }
+
+  function checkRegReady() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim().replace(/\s/g,'');
+    const ready = name.length >= 2 && phone.replace(/[^0-9]/g,'').length >= 10 && oathTaken;
+    const btn = document.getElementById('regSubmitBtn');
+    btn.classList.toggle('ready', ready);
+    btn.disabled = !ready;
+  }
+  ['reg-name','reg-phone','reg-email'].forEach(id =>
+    document.getElementById(id).addEventListener('input', checkRegReady)
+  );
+
+  // ── Submit Registration via Formspree
+  async function submitRegistration() {
+    const name  = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    let valid = true;
+
+    if (name.length < 2) { document.getElementById('err-name').classList.add('show'); valid = false; }
+    else document.getElementById('err-name').classList.remove('show');
+
+    if (phone.replace(/[^0-9]/g,'').length < 10) { document.getElementById('err-phone').classList.add('show'); valid = false; }
+    else document.getElementById('err-phone').classList.remove('show');
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('err-email').classList.add('show'); valid = false; }
+    else document.getElementById('err-email').classList.remove('show');
+
+    if (!oathTaken) { document.getElementById('err-oath').classList.add('show'); valid = false; }
+    else document.getElementById('err-oath').classList.remove('show');
+
+    if (!valid) return;
+
+    const btn = document.getElementById('regSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Registering...';
+
+    try {
+      const payload = {
+        name:    name,
+        phone:   phone,
+        email:   email || '(not provided)',
+        pledge:  '✓ Taken — Loyal to a corruption-free India. Jai Hind.',
+        _subject: '🪳 New CJP Member: ' + name,
+        // Formspree auto-reply fields:
+        _replyto: email || 'cockroachjantapartyindi@gmail.com',
+        // Custom auto-reply message (shown if Formspree auto-reply is ON):
+        _autoresponse: `Jai Hind, ${name}! 🇮🇳\n\nWelcome to the Cockroach Janta Party — the movement for every Indian the system forgot to count.\n\nYou have officially taken the oath:\n"I stand for a corruption-free India. No one calls us cowards. No one compares us to dogs. Not anymore."\n\nYou are now part of the swarm. We are unstoppable. We spread fast. We survive everything.\n\nStronger Together 🪳\n— Cockroach Janta Party\n\nFollow us:\nYouTube: https://www.youtube.com/@CockroachJantaPartyindi\nInstagram: https://www.instagram.com/cockroachjantapartyindi/\nTwitter: https://x.com/Cockroach_jpart`
+      };
+
+      const res = await fetch('https://formspree.io/f/xzdwdpdy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        // Increment local counter
+        const prev = parseInt(localStorage.getItem(COUNTER_KEY) || '0');
+        localStorage.setItem(COUNTER_KEY, prev + 1);
+
+        // Show success screen
+        document.getElementById('regForm').style.display = 'none';
+        const success = document.getElementById('regSuccess');
+        success.classList.add('show');
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Show email note
+        document.getElementById('emailNote').textContent = email
+          ? `✉ A welcome email has been sent to ${email}`
+          : '💡 Add your email next time to receive a welcome confirmation!';
+
+        // Refresh counters with animation
+        refreshCounters();
+      } else {
+        throw new Error('bad response');
+      }
+    } catch(err) {
+      btn.disabled = false;
+      btn.textContent = '🪳 Take the Oath & Join →';
+      btn.classList.add('ready');
+      alert('Something went wrong. Please try again or email us at cockroachjantapartyindi@gmail.com');
+    }
+  }
 </script>
 </body>
 </html>
