@@ -861,7 +861,10 @@
   function checkRegReady(){
     const name=document.getElementById('reg-name').value.trim();
     const phone=document.getElementById('reg-phone').value.trim();
-    const ready=name.length>=2&&phone.replace(/[^0-9]/g,'').length>=10&&oathTaken;
+    // Accept 10+ digits regardless of spaces, dashes, +91 prefix
+    const digits=phone.replace(/\D/g,'');
+    const phoneOk = digits.length>=10;
+    const ready=name.length>=2 && phoneOk && oathTaken;
     const btn=document.getElementById('regSubmitBtn');
     btn.classList.toggle('ready',ready);
     btn.disabled=!ready;
@@ -872,52 +875,99 @@
 
   // ── SUBMIT via Formspree
   async function submitRegistration(){
-    const name=document.getElementById('reg-name').value.trim();
-    const phone=document.getElementById('reg-phone').value.trim();
-    const email=document.getElementById('reg-email').value.trim();
-    let valid=true;
-    if(name.length<2){document.getElementById('err-name').classList.add('show');valid=false;}
-    else document.getElementById('err-name').classList.remove('show');
-    if(phone.replace(/[^0-9]/g,'').length<10){document.getElementById('err-phone').classList.add('show');valid=false;}
-    else document.getElementById('err-phone').classList.remove('show');
-    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('err-email').classList.add('show');valid=false;}
-    else document.getElementById('err-email').classList.remove('show');
-    if(!oathTaken){document.getElementById('err-oath').classList.add('show');valid=false;}
-    else document.getElementById('err-oath').classList.remove('show');
-    if(!valid)return;
+    const name  = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    let valid = true;
 
-    const btn=document.getElementById('regSubmitBtn');
-    btn.disabled=true;btn.textContent='⏳ Registering...';
+    // Name
+    if(name.length < 2){
+      document.getElementById('err-name').classList.add('show'); valid=false;
+    } else { document.getElementById('err-name').classList.remove('show'); }
+
+    // Phone — accept anything with 10+ digits
+    const digits = phone.replace(/\D/g,'');
+    if(digits.length < 10){
+      document.getElementById('err-phone').classList.add('show'); valid=false;
+    } else { document.getElementById('err-phone').classList.remove('show'); }
+
+    // Email — only validate if user actually typed something
+    if(email.length > 0){
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+      if(!emailOk){
+        document.getElementById('err-email').classList.add('show'); valid=false;
+      } else { document.getElementById('err-email').classList.remove('show'); }
+    } else {
+      document.getElementById('err-email').classList.remove('show');
+    }
+
+    // Oath
+    if(!oathTaken){
+      document.getElementById('err-oath').classList.add('show'); valid=false;
+    } else { document.getElementById('err-oath').classList.remove('show'); }
+
+    if(!valid) return;
+
+    const btn = document.getElementById('regSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Registering...';
+
+    // Build a clean payload — no special chars that break JSON
+    const welcomeMsg =
+      'Welcome to the Cockroach Janta Party, ' + name + '!\n\n' +
+      'You have officially taken the oath.\n' +
+      'Member since: 2026 | Status: ACTIVE SWARM MEMBER\n\n' +
+      '"I stand for a corruption-free India. No more paper leaks.\n' +
+      'No more mehngai. No one calls us cowards. Not anymore."\n\n' +
+      'WHAT NEXT:\n' +
+      '1. Subscribe: https://www.youtube.com/@CockroachJantaPartyindi\n' +
+      '2. Follow: https://www.instagram.com/cockroachjantapartyindi/\n' +
+      '3. Tweet: https://x.com/Cockroach_jpart\n\n' +
+      'Cockroaches survived the dinosaurs and 5 mins of Indian news TV.\n' +
+      'WE WILL SURVIVE THIS TOO.\n\n' +
+      'Stronger Together. Jai Hind.\n' +
+      '- Neta Ji Kakradev, Founder CJP Est. 2026';
+
+    const payload = {
+      name:    name,
+      phone:   phone,
+      email:   email || '(not provided)',
+      pledge:  'Taken - Loyal to a corruption-free India. Jai Hind.',
+      message: welcomeMsg,
+      _subject: 'New CJP Member: ' + name,
+      _replyto: email || 'cockroachjantapartyindi@gmail.com'
+    };
 
     try{
-      const res=await fetch('https://formspree.io/f/xzdwdpdy',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({
-          name,phone,
-          email:email||'(not provided)',
-          pledge:'✓ Taken — Loyal to a corruption-free India. Jai Hind.',
-          _subject:'🪳 New CJP Member: '+name,
-          _replyto:email||'cockroachjantapartyindi@gmail.com',
-          _autoresponse:`🪳 WELCOME TO THE SWARM, ${name}!\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nCOCKROACH JANTA PARTY\nOFFICIAL MEMBERSHIP CERTIFICATE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCongratulations, Comrade ${name}!\n\nYou have been officially inducted into the most unstoppable political force India has ever seen.\n\nThey tried to squash us. They sprayed pesticide. They called us lazy, unemployed, and irrelevant.\n\nWE. ARE. STILL. HERE.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nYOUR OATH (SIGNED IN INK, SEALED IN SPIRIT):\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"I stand for a corruption-free India.\nNo more paper leaks. No more mehngai.\nNo more treating Indian citizens like second-class humans.\nNo one calls us cowards. Not anymore."\n\nMember since: 2026\nParty: Cockroach Janta Party (CJP)\nStatus: ACTIVE SWARM MEMBER 🪳\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nWHAT HAPPENS NEXT?\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n1. Follow us everywhere — we move fast.\n2. Share this movement with 5 people.\n3. Show up. Speak up. Spread.\n\n📺 YouTube  → https://www.youtube.com/@CockroachJantaPartyindi\n📸 Instagram → https://www.instagram.com/cockroachjantapartyindi/\n🐦 Twitter   → https://x.com/Cockroach_jpart\n📧 Email     → cockroachjantapartyindi@gmail.com\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRemember: cockroaches survived the dinosaurs, nuclear blast simulations, and 5 minutes of Indian news TV.\n\nWE WILL SURVIVE THIS TOO.\n\nStronger Together. Jai Hind. 🇮🇳🪳\n\n— Neta Ji Kakradev\n  Founder & Chief Cockroach Officer\n  Cockroach Janta Party | Est. 2026\n  Headquarters: Wherever the WiFi Works`
-        })
+      const res = await fetch('https://formspree.io/f/xzdwdpdy', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify(payload)
       });
+
+      // Formspree returns 200 or 201 on success
       if(res.ok){
-        localStorage.setItem(COUNTER_KEY,(parseInt(localStorage.getItem(COUNTER_KEY)||'0')+1));
-        document.getElementById('regForm').style.display='none';
-        const s=document.getElementById('regSuccess');
+        localStorage.setItem(COUNTER_KEY, (parseInt(localStorage.getItem(COUNTER_KEY)||'0') + 1));
+        document.getElementById('regForm').style.display = 'none';
+        const s = document.getElementById('regSuccess');
         s.classList.add('show');
-        s.scrollIntoView({behavior:'smooth',block:'center'});
-        document.getElementById('emailNote').textContent=email
-          ?`✉ A welcome email has been sent to ${email}`
-          :'💡 Add your email next time to receive a welcome confirmation!';
+        s.scrollIntoView({ behavior:'smooth', block:'center' });
+        document.getElementById('emailNote').textContent = email
+          ? '✉ A welcome email has been sent to ' + email
+          : '💡 Add your email next time to receive a welcome confirmation!';
         refreshCounters();
-      }else{throw new Error('fail');}
-    }catch(e){
-      btn.disabled=false;
-      btn.textContent='🪳 Take the Oath & Join →';
+      } else {
+        // Log the actual error response
+        const errData = await res.json().catch(()=>({}));
+        console.error('Formspree error:', res.status, errData);
+        throw new Error('Server returned ' + res.status);
+      }
+    } catch(e){
+      console.error('Submit error:', e);
+      btn.disabled = false;
+      btn.textContent = '🪳 Take the Oath & Join →';
       btn.classList.add('ready');
-      alert('Something went wrong. Please try again or email us at cockroachjantapartyindi@gmail.com');
+      alert('Something went wrong (' + e.message + '). Please try again or email us at cockroachjantapartyindi@gmail.com');
     }
   }
 </script>
