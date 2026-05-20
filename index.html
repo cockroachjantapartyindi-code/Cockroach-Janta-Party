@@ -1286,27 +1286,6 @@
   },{threshold:.08});
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-  // ── COUNTER
-  const COUNTER_KEY='cjp_member_count';
-  const BASE=347;
-  function getCount(){ return BASE+parseInt(localStorage.getItem(COUNTER_KEY)||'0'); }
-  function animCount(el,target){
-    if(!el) return;
-    const dur=1800,t0=performance.now();
-    function step(now){
-      const p=Math.min((now-t0)/dur,1), e=1-Math.pow(1-p,3);
-      el.textContent=Math.floor(e*target).toLocaleString('en-IN');
-      if(p<1)requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-  function refreshCounters(){
-    const c=getCount();
-    animCount(document.getElementById('bigCount'),c);
-    animCount(document.getElementById('heroCount'),c);
-  }
-  refreshCounters();
-
   // ── ELIGIBILITY — exposed globally for onclick
   window.toggleCheck = function(el){
     el.classList.toggle('checked');
@@ -1327,83 +1306,98 @@
     const reg = document.getElementById('register');
     if(reg) reg.scrollIntoView({behavior:'smooth',block:'start'});
     const box = document.querySelector('.reg-form-box');
-    if(box){
-      box.style.outline='2px solid #8B3A10';
-      setTimeout(()=>{ box.style.outline=''; }, 2000);
+    if(box){ box.style.outline='2px solid #8B3A10'; setTimeout(()=>{ box.style.outline=''; }, 2000); }
+  };
+
+  }); // end DOMContentLoaded
+
+  // ══════════════════════════════════════════════════════
+  // ALL GLOBALS — outside DOMContentLoaded so every
+  // onclick attribute and async function can reach them
+  // ══════════════════════════════════════════════════════
+
+  // ── COUNTER (persistent across reloads via localStorage)
+  const COUNTER_KEY = 'cjp_member_count';
+  const BASE = 347;
+  function getCount(){ return BASE + parseInt(localStorage.getItem(COUNTER_KEY)||'0'); }
+  function animCount(el, target){
+    if(!el) return;
+    const dur=1800, t0=performance.now();
+    function step(now){
+      const p=Math.min((now-t0)/dur,1), ease=1-Math.pow(1-p,3);
+      el.textContent = Math.floor(ease*target).toLocaleString('en-IN');
+      if(p<1) requestAnimationFrame(step);
     }
-  };
-
-  // ── VALIDATION RULES
-  // Name: letters only + spaces + allowed punctuation (,.;:) — no digits, no special chars, max 50
-  function validateName(v){
-    if(!v||v.length<2)           return 'Name must be at least 2 characters.';
-    if(v.length>50)              return 'Name cannot exceed 50 characters.';
-    if(/[0-9]/.test(v))         return 'Name cannot contain numbers.';
-    if(/[^a-zA-Z\u00C0-\u024F\u0900-\u097F ,.:;'-]/.test(v))
-                                 return 'Name can only contain letters and , . : ; characters.';
-    return '';
+    requestAnimationFrame(step);
   }
-  // Phone: digits only after stripping spaces/dashes/+, must be 10–12 digits
-  function validatePhone(v){
-    const d=v.replace(/[\s\-\+]/g,'');
-    if(/[^0-9]/.test(d))        return 'Mobile number must contain digits only.';
-    if(d.length<10)              return 'Mobile number must be at least 10 digits.';
-    if(d.length>12)              return 'Mobile number cannot exceed 12 digits.';
-    return '';
+  function refreshCounters(){
+    const c = getCount();
+    animCount(document.getElementById('bigCount'), c);
+    animCount(document.getElementById('heroCount'), c);
   }
-  // Email: must have @, must end with .com (case-insensitive), no spaces
-  function validateEmail(v){
-    if(!v) return ''; // optional field
-    if(!v.includes('@'))         return 'Email must contain @.';
-    if(!/\.com$/i.test(v))       return 'Email must end with .com';
-    if(/\s/.test(v))             return 'Email cannot contain spaces.';
-    if(!/^[^\s@]+@[^\s@]+\.com$/i.test(v))
-                                 return 'Please enter a valid email (e.g. name@gmail.com).';
-    return '';
-  }
-
-  function showErr(id, msg){
-    const el=document.getElementById(id);
-    if(msg){ el.textContent=msg; el.classList.add('show'); }
-    else   { el.classList.remove('show'); }
-    return !!msg;
-  }
-
-  // ── OATH — global
-  let oathTaken=false;
-  window.toggleOath = function(){
-    oathTaken=!oathTaken;
-    const b=document.getElementById('oathBox');
-    if(!b) return;
-    b.classList.toggle('ticked',oathTaken);
-    b.textContent=oathTaken?'✓':'';
-    if(oathTaken){ const e=document.getElementById('err-oath'); if(e) e.classList.remove('show'); }
-    checkReady();
-  };
-
-  function checkReady(){
-    const name  = document.getElementById('reg-name').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
-    const nameOk  = validateName(name)   === '';
-    const phoneOk = validatePhone(phone) === '';
-    const ok = nameOk && phoneOk && oathTaken;
-    const btn=document.getElementById('regSubmitBtn');
-    btn.classList.toggle('ready', ok);
-    btn.disabled = !ok;
-  }
-
-  // Live feedback as user types — wrapped safely
-  function attachInputListeners(){
+  // Run counter animation once DOM is ready
+  document.addEventListener('DOMContentLoaded', function(){
+    refreshCounters();
+    // Attach input listeners here (DOM guaranteed ready)
     const nameEl  = document.getElementById('reg-name');
     const phoneEl = document.getElementById('reg-phone');
     const emailEl = document.getElementById('reg-email');
     if(nameEl)  nameEl.addEventListener('input',  function(){ showErr('err-name',  this.value.trim() ? validateName(this.value.trim())  : ''); checkReady(); });
     if(phoneEl) phoneEl.addEventListener('input', function(){ showErr('err-phone', this.value.trim() ? validatePhone(this.value.trim()) : ''); checkReady(); });
     if(emailEl) emailEl.addEventListener('input', function(){ showErr('err-email', validateEmail(this.value.trim())); checkReady(); });
-  }
-  attachInputListeners();
+  });
 
-  }); // end DOMContentLoaded
+  // ── VALIDATION
+  function validateName(v){
+    if(!v||v.length<2)  return 'Name must be at least 2 characters.';
+    if(v.length>50)      return 'Name cannot exceed 50 characters.';
+    if(/[0-9]/.test(v)) return 'Name cannot contain numbers.';
+    if(/[^a-zA-Z\u00C0-\u024F\u0900-\u097F ,.:;'-]/.test(v)) return 'Name can only contain letters and , . : ; characters.';
+    return '';
+  }
+  function validatePhone(v){
+    const d=v.replace(/[\s\-\+]/g,'');
+    if(/[^0-9]/.test(d)) return 'Mobile number must contain digits only.';
+    if(d.length<10)       return 'Mobile number must be at least 10 digits.';
+    if(d.length>12)       return 'Mobile number cannot exceed 12 digits.';
+    return '';
+  }
+  function validateEmail(v){
+    if(!v) return '';
+    if(!v.includes('@'))        return 'Email must contain @.';
+    if(!/\.com$/i.test(v))      return 'Email must end with .com';
+    if(/\s/.test(v))            return 'Email cannot contain spaces.';
+    if(!/^[^\s@]+@[^\s@]+\.com$/i.test(v)) return 'Please enter a valid email (e.g. name@gmail.com).';
+    return '';
+  }
+  function showErr(id, msg){
+    const el=document.getElementById(id);
+    if(!el) return !!msg;
+    if(msg){ el.textContent=msg; el.classList.add('show'); }
+    else { el.classList.remove('show'); }
+    return !!msg;
+  }
+  function checkReady(){
+    const nameEl  = document.getElementById('reg-name');
+    const phoneEl = document.getElementById('reg-phone');
+    const btn     = document.getElementById('regSubmitBtn');
+    if(!nameEl||!phoneEl||!btn) return;
+    const ok = validateName(nameEl.value.trim())==='' && validatePhone(phoneEl.value.trim())==='' && oathTaken;
+    btn.classList.toggle('ready', ok);
+    btn.disabled = !ok;
+  }
+
+  // ── OATH STATE — global so submitRegistration can read it
+  var oathTaken = false;
+  window.toggleOath = function(){
+    oathTaken = !oathTaken;
+    const b=document.getElementById('oathBox');
+    if(!b) return;
+    b.classList.toggle('ticked', oathTaken);
+    b.textContent = oathTaken ? '✓' : '';
+    if(oathTaken){ const e=document.getElementById('err-oath'); if(e) e.classList.remove('show'); }
+    checkReady();
+  };
 
   // ── SUBMIT — global
   window.submitRegistration = async function(){
